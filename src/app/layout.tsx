@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { Bangers, Inter } from "next/font/google";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
+const bangers = Bangers({
   variable: "--font-display",
+  weight: "400",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -22,9 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="lv"
-      className={`${bricolage.variable} ${inter.variable} h-full antialiased`}
+      className={`${bangers.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-cream text-ink font-body">
+      <body className="min-h-full flex flex-col bg-cream text-jungle font-body">
         {children}
       </body>
     </html>

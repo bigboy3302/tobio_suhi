@@ -1,15 +1,28 @@
 @import "tailwindcss";
 
 :root {
+  /* legacy palette — still used by sections not yet migrated off it;
+     will be removed once the jungle rebrand is applied everywhere */
   --color-ink: #241a15;
   --color-ink-soft: #4a3a31;
-  --color-cream: #fbf1e2;
-  --color-cream-soft: #f4e6ce;
+  --color-cream: #f6f4ec;
+  --color-cream-soft: #ece7d8;
   --color-coral: #ff6b4a;
   --color-coral-dark: #e0502f;
   --color-matcha: #7c9a5c;
   --color-matcha-dark: #5d7a41;
   --color-gold: #d6a13f;
+
+  /* jungle palette — sampled from public/tobio-logo.png (see conversation
+     for the sampling script + raw swatches). cream/cream-soft above are
+     not sampled (the logo has none) — they're the explicitly-approved
+     off-white for readable light sections. */
+  --color-jungle: #071b11; /* deep near-black canopy green — most common dark swatch in the logo */
+  --color-jungle-soft: #2e4030; /* muted dark green for secondary text on cream */
+  --color-foliage: #3c623a; /* mid-tone foliage green */
+  --color-foliage-dark: #2c4a2a;
+  --color-leaf: #85a757; /* bright sunlit-leaf green — brightest swatch in the logo */
+  --color-leaf-dark: #6b8f44;
 }
 
 @theme inline {
@@ -22,13 +35,19 @@
   --color-matcha: var(--color-matcha);
   --color-matcha-dark: var(--color-matcha-dark);
   --color-gold: var(--color-gold);
+  --color-jungle: var(--color-jungle);
+  --color-jungle-soft: var(--color-jungle-soft);
+  --color-foliage: var(--color-foliage);
+  --color-foliage-dark: var(--color-foliage-dark);
+  --color-leaf: var(--color-leaf);
+  --color-leaf-dark: var(--color-leaf-dark);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
 }
 
 body {
   background: var(--color-cream);
-  color: var(--color-ink);
+  color: var(--color-jungle);
 }
 
 @keyframes marquee {

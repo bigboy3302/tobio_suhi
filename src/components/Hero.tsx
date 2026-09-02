@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ArrowRight, Phone } from "lucide-react";
 import type { Location, MenuItem, SiteSettings } from "@/lib/types";
 
@@ -10,7 +11,7 @@ export default function Hero({
   menuItems: MenuItem[];
   locations: Location[];
 }) {
-  const headline = settings?.hero_headline || "Svaigs suši. Gatavots ar sirdi.";
+  const headline = settings?.hero_headline || "Svaigi suši. Gatavots ar sirdi.";
   const subtext =
     settings?.hero_subtext ||
     "Roku darbs, svaigi produkti un japāņu gatavošanas tradīcijas — katru dienu no jauna Siguldā un Cēsīs.";
@@ -19,71 +20,92 @@ export default function Hero({
   const primaryLocation = locations[0];
 
   return (
-    <section id="top" className="relative overflow-hidden pb-16 pt-14 sm:pt-20">
-      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-coral/20 blur-3xl" />
-      <div className="pointer-events-none absolute -left-32 top-40 h-72 w-72 rounded-full bg-matcha/20 blur-3xl" />
+    <section id="top" className="relative overflow-hidden bg-jungle">
+      <div className="absolute inset-0">
+        <Image
+          src="/tobio-jungle-texture.png"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-jungle via-jungle/65 to-jungle/25" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-jungle to-transparent" />
+      </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-cream">
-              Sigulda &middot; Cēsis
+      <div className="relative mx-auto max-w-3xl px-4 pb-16 pt-20 sm:px-6 sm:pt-28 lg:px-8">
+        <span className="relative inline-block text-xs font-semibold uppercase tracking-[0.2em] text-leaf">
+          Sigulda &middot; Cēsis
+          <svg
+            className="absolute -bottom-1.5 left-0 w-full"
+            height="7"
+            viewBox="0 0 120 7"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M1,4.5 C10,1 18,6 28,3 C38,0.5 47,5.5 58,3.5 C69,1.5 78,5 89,3 C99,1.2 108,4.8 119,2.5"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+
+        <h1 className="mt-6 font-display text-5xl leading-[1.05] tracking-wide text-white sm:text-6xl">
+          {headline}
+        </h1>
+        <p className="mt-5 max-w-lg text-base leading-relaxed text-white/70 sm:text-lg">
+          {subtext}
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <a
+            href="#ediena-karte"
+            className="inline-flex items-center gap-2 rounded-full bg-leaf px-6 py-3.5 text-sm font-semibold text-jungle shadow-lg shadow-leaf/30 transition-transform hover:-translate-y-0.5"
+          >
+            Skatīt ēdienkarti
+            <ArrowRight className="h-4 w-4" />
+          </a>
+          {primaryLocation && (
+            <a
+              href={`tel:${primaryLocation.phone.replace(/\s+/g, "")}`}
+              className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:border-leaf hover:text-leaf"
+            >
+              <Phone className="h-4 w-4" />
+              Piezvanīt un pasūtīt
+            </a>
+          )}
+        </div>
+
+        <div className="mt-10 flex items-center gap-5 border-t border-white/10 pt-6">
+          <p className="flex items-baseline gap-2">
+            <span className="font-display text-3xl text-leaf">{menuItems.length}+</span>
+            <span className="text-xs text-white/55">ēdienkartes
+              <br />pozīcijas
             </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-              {headline}
-            </h1>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
-              {subtext}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#ediena-karte"
-                className="inline-flex items-center gap-2 rounded-full bg-coral px-6 py-3.5 text-sm font-semibold text-cream shadow-lg shadow-coral/30 transition-transform hover:-translate-y-0.5"
-              >
-                Skatīt ēdienkarti
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              {primaryLocation && (
-                <a
-                  href={`tel:${primaryLocation.phone.replace(/\s+/g, "")}`}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-ink px-6 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-ink hover:text-cream"
-                >
-                  <Phone className="h-4 w-4" />
-                  Piezvanīt un pasūtīt
-                </a>
-              )}
-            </div>
-          </div>
-
-          <div className="relative z-10 grid grid-cols-2 gap-4">
-            <div className="col-span-2 rounded-3xl bg-ink p-6 text-cream">
-              <p className="font-display text-lg font-semibold">Katru dienu svaigs</p>
-              <p className="mt-1 text-sm text-cream/70">
-                Svaigs lasis un kvalitatīvas sastāvdaļas — bez saldēšanas.
-              </p>
-            </div>
-            <div className="rounded-3xl bg-matcha p-6 text-cream">
-              <p className="font-display text-3xl font-bold">{menuItems.length}+</p>
-              <p className="mt-1 text-sm text-cream/85">ēdienkartes pozīcijas</p>
-            </div>
-            <div className="rounded-3xl bg-gold p-6 text-ink">
-              <p className="font-display text-3xl font-bold">{locations.length}</p>
-              <p className="mt-1 text-sm text-ink/75">atrašanās vietas Latvijā</p>
-            </div>
-          </div>
+          </p>
+          <span className="h-9 w-px bg-white/15" />
+          <p className="flex items-baseline gap-2">
+            <span className="font-display text-3xl text-leaf">{locations.length}</span>
+            <span className="text-xs text-white/55">pilsētas
+              <br />Latvijā
+            </span>
+          </p>
         </div>
       </div>
 
       {marqueeNames.length > 0 && (
-        <div className="mt-14 -rotate-1 overflow-hidden border-y-2 border-ink bg-ink py-3">
+        <div className="relative -rotate-1 overflow-hidden border-y-2 border-leaf/30 bg-foliage-dark py-3">
           <div className="flex w-max animate-marquee whitespace-nowrap">
             {[...marqueeNames, ...marqueeNames].map((name, i) => (
               <span
                 key={`${name}-${i}`}
-                className="mx-4 flex items-center gap-4 font-display text-lg font-semibold text-cream/90 sm:text-xl"
+                className="mx-4 flex items-center gap-4 font-display text-xl tracking-wide text-white/90 sm:text-2xl"
               >
                 {name}
-                <span className="text-coral">&bull;</span>
+                <span className="text-leaf">&bull;</span>
               </span>
             ))}
           </div>
