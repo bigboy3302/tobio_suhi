@@ -15,7 +15,17 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  function setUploading(id: string, uploading: boolean) {
+    setUploadingIds((prev) => {
+      const next = new Set(prev);
+      if (uploading) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
 
   async function load() {
     setLoading(true);
@@ -42,6 +52,7 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
   }
 
   async function handleSave(loc: Location) {
+    if (uploadingIds.has(loc.id)) return;
     setSaving(loc.id);
     try {
       await adminRequest(
@@ -167,12 +178,18 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
               imageAlt={loc.image_alt ?? ""}
               onImageChange={(id) => update(loc.id, { image_id: id })}
               onAltChange={(alt) => update(loc.id, { image_alt: alt })}
+              onUploadingChange={(uploading) => setUploading(loc.id, uploading)}
             />
 
+            {uploadingIds.has(loc.id) && (
+              <p className="mt-3 text-xs text-ink-soft">
+                Uzgaidi, kamēr attēls pabeidz augšupielādēties, pirms saglabā...
+              </p>
+            )}
             <button
               type="button"
               onClick={() => handleSave(loc)}
-              disabled={saving === loc.id}
+              disabled={saving === loc.id || uploadingIds.has(loc.id)}
               className="mt-4 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink disabled:opacity-60"
             >
               {saving === loc.id ? "Saglabā..." : "Saglabāt"}

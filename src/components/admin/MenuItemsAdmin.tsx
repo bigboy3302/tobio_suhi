@@ -57,6 +57,7 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   async function load() {
@@ -80,6 +81,7 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
   }, []);
 
   function startEdit(item: MenuItem) {
+    setImageUploading(false);
     setForm({
       id: item.id,
       name: item.name,
@@ -99,7 +101,7 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!form) return;
+    if (!form || imageUploading) return;
     const input = {
       name: form.name,
       description: form.description,
@@ -170,7 +172,10 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
         <h2 className="font-display text-2xl font-bold">Ēdienkartes pozīcijas ({items.length})</h2>
         <button
           type="button"
-          onClick={() => setForm(EMPTY_FORM)}
+          onClick={() => {
+            setImageUploading(false);
+            setForm(EMPTY_FORM);
+          }}
           className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-cream"
         >
           <Plus className="h-4 w-4" />
@@ -281,6 +286,7 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
             imageAlt={form.image_alt}
             onImageChange={(id) => setForm({ ...form, image_id: id })}
             onAltChange={(alt) => setForm({ ...form, image_alt: alt })}
+            onUploadingChange={setImageUploading}
           />
 
           <div className="mt-3">
@@ -301,14 +307,24 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
             </div>
           </div>
 
+          {imageUploading && (
+            <p className="mt-4 text-xs text-ink-soft">
+              Uzgaidi, kamēr attēls pabeidz augšupielādēties, pirms saglabā...
+            </p>
+          )}
           <div className="mt-5 flex gap-2">
-            <button type="submit" className="rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink">
+            <button
+              type="submit"
+              disabled={imageUploading}
+              className="rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink disabled:opacity-60"
+            >
               Saglabāt
             </button>
             <button
               type="button"
+              disabled={imageUploading}
               onClick={() => setForm(null)}
-              className="rounded-full border border-ink/20 px-5 py-2 text-sm font-medium"
+              className="rounded-full border border-ink/20 px-5 py-2 text-sm font-medium disabled:opacity-60"
             >
               Atcelt
             </button>

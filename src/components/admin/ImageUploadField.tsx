@@ -12,6 +12,7 @@ export default function ImageUploadField({
   imageAlt,
   onImageChange,
   onAltChange,
+  onUploadingChange,
 }: {
   nhost: NhostClient;
   label: string;
@@ -19,6 +20,15 @@ export default function ImageUploadField({
   imageAlt: string;
   onImageChange: (id: string | null) => void;
   onAltChange: (alt: string) => void;
+  /**
+   * Fires while a file is mid-upload. The upload happens immediately on file
+   * pick (independent of the form's own Save button) so the thumbnail can
+   * preview right away — but that means Save can otherwise fire before the
+   * new file's id has landed in the parent's form state, saving the item
+   * with its old (or no) image and silently orphaning the just-uploaded
+   * file. Callers should disable Save while this is true.
+   */
+  onUploadingChange?: (uploading: boolean) => void;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +42,7 @@ export default function ImageUploadField({
     }
     setError(null);
     setUploading(true);
+    onUploadingChange?.(true);
     const previousId = imageId;
     try {
       const newId = await uploadImage(nhost, file);
@@ -43,6 +54,7 @@ export default function ImageUploadField({
       setError(String(e));
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }

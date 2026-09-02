@@ -17,6 +17,7 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   async function load() {
@@ -48,7 +49,7 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!settings) return;
+    if (!settings || imageUploading) return;
     setSaving(true);
     try {
       await adminRequest(
@@ -102,6 +103,7 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
           imageAlt={settings.hero_image_alt ?? ""}
           onImageChange={(id) => setSettings({ ...settings, hero_image_id: id })}
           onAltChange={(alt) => setSettings({ ...settings, hero_image_alt: alt })}
+          onUploadingChange={setImageUploading}
         />
 
         <Field label="Šodienas ieteikums (manuāla izvēle)">
@@ -161,9 +163,14 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
           />
         </Field>
 
+        {imageUploading && (
+          <p className="mt-4 text-xs text-ink-soft">
+            Uzgaidi, kamēr attēls pabeidz augšupielādēties, pirms saglabā...
+          </p>
+        )}
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || imageUploading}
           className="mt-5 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink disabled:opacity-60"
         >
           {saving ? "Saglabā..." : "Saglabāt"}
