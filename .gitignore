@@ -1,0 +1,53 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+# (no trailing slash — /.next is a symlink to ~/Library/Caches on this
+# machine, see README; a trailing-slash pattern wouldn't match a symlink)
+/.next
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# pocketbase (local backend)
+# the binary is platform-specific and pb_data holds the local database
+# (including the superuser's password hash) — both are re-creatable, not source.
+# pb_data has no trailing slash because it's a symlink to ~/Library/Caches
+# on this machine (see README) — a trailing-slash pattern wouldn't match it.
+# pb_migrations IS committed: it's the versioned collection schema.
+/pocketbase/pocketbase
+/pocketbase/pb_data
+/pocketbase/.metadata_never_index
