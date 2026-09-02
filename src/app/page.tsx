@@ -50,13 +50,13 @@ export default async function Home() {
           <DailyPick item={dailyItem} isManual={isManual} />
         </div>
         <WhyUs locations={locations} />
-        <Story />
+        <Story heading={settings?.story_heading} body={settings?.story_body} />
         <RollBuilder
           options={rollOptions}
           basePrice={settings?.roll_builder_base_price ?? 4.9}
           locations={locations}
         />
-        <MenuGrid items={menuItems} linkToFullMenu />
+        <MenuGrid items={menuItems} linkToFullMenu allergenText={settings?.allergen_text} />
         <WoltCTA settings={settings} />
         <Locations locations={locations} settings={settings} />
         <Testimonials testimonials={testimonials} />

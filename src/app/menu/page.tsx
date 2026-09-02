@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MenuGrid from "@/components/MenuGrid";
 import MobileOrderBar from "@/components/MobileOrderBar";
-import { getLocations, getMenuItems } from "@/lib/data";
+import { getLocations, getMenuItems, getSiteSettings } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +15,17 @@ export const metadata: Metadata = {
 };
 
 export default async function MenuPage() {
-  const [menuItems, locations] = await Promise.all([getMenuItems(), getLocations()]);
+  const [menuItems, locations, settings] = await Promise.all([
+    getMenuItems(),
+    getLocations(),
+    getSiteSettings(),
+  ]);
 
   return (
     <>
       <Header locations={locations} />
       <main className="flex-1 pt-6">
-        <MenuGrid items={menuItems} />
+        <MenuGrid items={menuItems} allergenText={settings?.allergen_text} />
       </main>
       <Footer locations={locations} />
       <MobileOrderBar locations={locations} />

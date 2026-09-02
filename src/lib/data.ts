@@ -9,7 +9,7 @@ import type {
 
 const MENU_ITEM_FIELDS = `
   id name description price price_large size_small_label size_large_label
-  category tags active sort_order
+  category tags active sort_order image_id image_alt
 `;
 
 async function query<T>(gql: string, variables?: Record<string, unknown>): Promise<T | null> {
@@ -38,6 +38,7 @@ export async function getLocations(): Promise<Location[]> {
     query {
       locations(order_by: { sort_order: asc }) {
         id name city address phone hours_weekdays hours_weekend rating reviews_count google_maps_url sort_order
+        image_id image_alt
       }
     }
   `);
@@ -76,6 +77,7 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
       site_settings(limit: 1) {
         id hero_headline hero_subtext daily_special_manual_id roll_builder_base_price
         google_reviews_url wolt_url_sigulda wolt_url_cesis
+        hero_image_id hero_image_alt story_heading story_body allergen_text
         daily_special_manual {
           ${MENU_ITEM_FIELDS}
         }

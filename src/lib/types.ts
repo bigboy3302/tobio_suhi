@@ -28,6 +28,8 @@ export interface MenuItem {
   tags: MenuTag[];
   active: boolean;
   sort_order: number;
+  image_id: string | null;
+  image_alt: string | null;
 }
 
 export interface Location {
@@ -42,6 +44,8 @@ export interface Location {
   reviews_count: number;
   google_maps_url: string;
   sort_order: number;
+  image_id: string | null;
+  image_alt: string | null;
 }
 
 export interface Testimonial {
@@ -76,6 +80,11 @@ export interface SiteSettings {
   google_reviews_url: string;
   wolt_url_sigulda: string;
   wolt_url_cesis: string;
+  hero_image_id: string | null;
+  hero_image_alt: string | null;
+  story_heading: string | null;
+  story_body: string | null;
+  allergen_text: string | null;
 }
 
 export const CATEGORY_LABELS: Record<MenuCategory, string> = {

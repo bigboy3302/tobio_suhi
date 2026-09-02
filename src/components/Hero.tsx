@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, Phone } from "lucide-react";
 import type { Location, MenuItem, SiteSettings } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
+import { nhostFileUrl } from "@/lib/nhostStorage";
 
 export default function Hero({
   settings,
@@ -22,13 +23,18 @@ export default function Hero({
 
   const marqueeNames = menuItems.slice(0, 12).map((m) => m.name);
   const primaryLocation = locations[0];
+  const heroImageSrc = settings?.hero_image_id
+    ? nhostFileUrl(settings.hero_image_id)
+    : "/tobio-jungle-texture.png";
+  const heroImageAlt = settings?.hero_image_id ? settings.hero_image_alt || "" : "";
 
   return (
     <section id="top" className="relative overflow-hidden bg-jungle">
       <div className="absolute inset-0">
         <Image
-          src="/tobio-jungle-texture.png"
-          alt=""
+          key={heroImageSrc}
+          src={heroImageSrc}
+          alt={heroImageAlt}
           fill
           priority
           className="object-cover"

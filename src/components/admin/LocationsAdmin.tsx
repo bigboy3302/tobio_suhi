@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import type { NhostClient } from "@nhost/nhost-js";
 import { adminRequest } from "@/lib/adminGraphql";
 import type { Location } from "@/lib/types";
+import ImageUploadField from "./ImageUploadField";
 
 const FIELDS = `
   id name city address phone hours_weekdays hours_weekend rating reviews_count google_maps_url sort_order
+  image_id image_alt
 `;
 
 export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
@@ -58,6 +60,8 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
             rating: Number(loc.rating),
             reviews_count: Number(loc.reviews_count),
             google_maps_url: loc.google_maps_url,
+            image_id: loc.image_id,
+            image_alt: loc.image_id ? loc.image_alt || null : null,
           },
         }
       );
@@ -155,6 +159,15 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
                 className="admin-input"
               />
             </Field>
+
+            <ImageUploadField
+              nhost={nhost}
+              label="Attēls (interjers / fasāde)"
+              imageId={loc.image_id}
+              imageAlt={loc.image_alt ?? ""}
+              onImageChange={(id) => update(loc.id, { image_id: id })}
+              onAltChange={(alt) => update(loc.id, { image_alt: alt })}
+            />
 
             <button
               type="button"

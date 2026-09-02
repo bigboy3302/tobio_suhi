@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import type { NhostClient } from "@nhost/nhost-js";
 import { adminRequest } from "@/lib/adminGraphql";
 import type { MenuItem, SiteSettings } from "@/lib/types";
+import ImageUploadField from "./ImageUploadField";
 
 const SETTINGS_FIELDS = `
   id hero_headline hero_subtext daily_special_manual_id roll_builder_base_price
   google_reviews_url wolt_url_sigulda wolt_url_cesis
+  hero_image_id hero_image_alt story_heading story_body allergen_text
 `;
 
 export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
@@ -64,6 +66,11 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
             google_reviews_url: settings.google_reviews_url,
             wolt_url_sigulda: settings.wolt_url_sigulda,
             wolt_url_cesis: settings.wolt_url_cesis,
+            hero_image_id: settings.hero_image_id,
+            hero_image_alt: settings.hero_image_id ? settings.hero_image_alt || null : null,
+            story_heading: settings.story_heading || null,
+            story_body: settings.story_body || null,
+            allergen_text: settings.allergen_text || null,
           },
         }
       );
@@ -104,6 +111,48 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
             className="admin-input"
           />
         </Field>
+
+        <ImageUploadField
+          nhost={nhost}
+          label="Hero fona attēls"
+          imageId={settings.hero_image_id}
+          imageAlt={settings.hero_image_alt ?? ""}
+          onImageChange={(id) => setSettings({ ...settings, hero_image_id: id })}
+          onAltChange={(alt) => setSettings({ ...settings, hero_image_alt: alt })}
+        />
+
+        <div className="mt-6 border-t border-ink/10 pt-5">
+          <p className="mb-1 text-sm font-semibold text-ink">Mūsu stāsts</p>
+          <p className="mb-3 text-xs text-ink-soft">
+            Ja atstāsi tukšu, vietnē rādīsies noklusējuma teksts.
+          </p>
+          <Field label="Virsraksts">
+            <input
+              value={settings.story_heading ?? ""}
+              onChange={(e) => setSettings({ ...settings, story_heading: e.target.value })}
+              className="admin-input"
+            />
+          </Field>
+          <Field label="Teksts">
+            <textarea
+              value={settings.story_body ?? ""}
+              onChange={(e) => setSettings({ ...settings, story_body: e.target.value })}
+              rows={3}
+              className="admin-input"
+            />
+          </Field>
+        </div>
+
+        <div className="mt-6 border-t border-ink/10 pt-5">
+          <Field label="Alergēnu brīdinājums (rādās virs ēdienkartes)">
+            <textarea
+              value={settings.allergen_text ?? ""}
+              onChange={(e) => setSettings({ ...settings, allergen_text: e.target.value })}
+              rows={2}
+              className="admin-input"
+            />
+          </Field>
+        </div>
 
         <Field label="Šodienas ieteikums (manuāla izvēle)">
           <select

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { NhostClient } from "@nhost/nhost-js";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { adminRequest } from "@/lib/adminGraphql";
+import { nhostFileUrl } from "@/lib/nhostStorage";
 import {
   CATEGORY_LABELS,
   TAG_LABELS,
@@ -11,13 +12,14 @@ import {
   type MenuItem,
   type MenuTag,
 } from "@/lib/types";
+import ImageUploadField from "./ImageUploadField";
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as MenuCategory[];
 const TAGS = Object.keys(TAG_LABELS) as MenuTag[];
 
 const FIELDS = `
   id name description price price_large size_small_label size_large_label
-  category tags active sort_order
+  category tags active sort_order image_id image_alt
 `;
 
 type FormState = {
@@ -32,6 +34,8 @@ type FormState = {
   tags: MenuTag[];
   active: boolean;
   sort_order: string;
+  image_id: string | null;
+  image_alt: string;
 };
 
 const EMPTY_FORM: FormState = {
@@ -45,6 +49,8 @@ const EMPTY_FORM: FormState = {
   tags: [],
   active: true,
   sort_order: "0",
+  image_id: null,
+  image_alt: "",
 };
 
 export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
@@ -86,6 +92,8 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
       tags: item.tags ?? [],
       active: item.active,
       sort_order: String(item.sort_order),
+      image_id: item.image_id,
+      image_alt: item.image_alt ?? "",
     });
   }
 
@@ -103,6 +111,8 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
       tags: form.tags,
       active: form.active,
       sort_order: Number(form.sort_order),
+      image_id: form.image_id,
+      image_alt: form.image_id ? form.image_alt || null : null,
     };
     try {
       if (form.id) {
@@ -264,6 +274,15 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
             />
           </Field>
 
+          <ImageUploadField
+            nhost={nhost}
+            label="Attēls"
+            imageId={form.image_id}
+            imageAlt={form.image_alt}
+            onImageChange={(id) => setForm({ ...form, image_id: id })}
+            onAltChange={(alt) => setForm({ ...form, image_alt: alt })}
+          />
+
           <div className="mt-3">
             <p className="mb-1.5 text-sm font-medium text-ink">Tagi</p>
             <div className="flex flex-wrap gap-2">
@@ -303,19 +322,31 @@ export default function MenuItemsAdmin({ nhost }: { nhost: NhostClient }) {
         <div className="divide-y divide-ink/10 rounded-2xl border border-ink/10">
           {items.map((item) => (
             <div key={item.id} className="flex items-center justify-between gap-3 px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {item.name}
-                  {!item.active && (
-                    <span className="ml-2 rounded-full bg-ink/10 px-2 py-0.5 text-[10px] text-ink-soft">
-                      neaktīvs
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-ink-soft">
-                  {CATEGORY_LABELS[item.category]} &middot; &euro;{item.price.toFixed(2)}
-                  {item.price_large ? ` / €${item.price_large.toFixed(2)}` : ""}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                {item.image_id ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={nhostFileUrl(item.image_id)}
+                    alt=""
+                    className="h-9 w-9 flex-none rounded-lg border border-ink/10 object-cover"
+                  />
+                ) : (
+                  <div className="h-9 w-9 flex-none rounded-lg bg-ink/5" />
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">
+                    {item.name}
+                    {!item.active && (
+                      <span className="ml-2 rounded-full bg-ink/10 px-2 py-0.5 text-[10px] text-ink-soft">
+                        neaktīvs
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-ink-soft">
+                    {CATEGORY_LABELS[item.category]} &middot; &euro;{item.price.toFixed(2)}
+                    {item.price_large ? ` / €${item.price_large.toFixed(2)}` : ""}
+                  </p>
+                </div>
               </div>
               <div className="flex flex-none gap-1.5">
                 <button
