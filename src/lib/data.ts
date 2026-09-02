@@ -1,4 +1,4 @@
-import { createPocketBase } from "./pocketbase";
+import { getPublicNhost } from "./nhost";
 import type {
   Location,
   MenuItem,
@@ -7,82 +7,82 @@ import type {
   Testimonial,
 } from "./types";
 
-// PocketBase requests are made with `cache: "no-store"` so that edits made
-// in the PocketBase admin UI are reflected on the site on the next request,
-// without needing a rebuild or redeploy.
-const noStoreFetch: typeof fetch = (input, init) =>
-  fetch(input, { ...init, cache: "no-store" });
+const MENU_ITEM_FIELDS = `
+  id name description price price_large size_small_label size_large_label
+  category tags active sort_order
+`;
 
-function pb() {
-  return createPocketBase();
-}
-
-export async function getMenuItems(): Promise<MenuItem[]> {
+async function query<T>(gql: string, variables?: Record<string, unknown>): Promise<T | null> {
   try {
-    const client = pb();
-    const records = await client.collection("menu_items").getFullList({
-      filter: "active = true",
-      sort: "category,sort_order",
-      fetch: noStoreFetch,
-    });
-    return records as unknown as MenuItem[];
-  } catch {
-    return [];
-  }
-}
-
-export async function getLocations(): Promise<Location[]> {
-  try {
-    const client = pb();
-    const records = await client.collection("locations").getFullList({
-      sort: "sort_order",
-      fetch: noStoreFetch,
-    });
-    return records as unknown as Location[];
-  } catch {
-    return [];
-  }
-}
-
-export async function getTestimonials(): Promise<Testimonial[]> {
-  try {
-    const client = pb();
-    const records = await client.collection("testimonials").getFullList({
-      filter: "active = true",
-      sort: "sort_order",
-      fetch: noStoreFetch,
-    });
-    return records as unknown as Testimonial[];
-  } catch {
-    return [];
-  }
-}
-
-export async function getRollBuilderOptions(): Promise<RollBuilderOption[]> {
-  try {
-    const client = pb();
-    const records = await client.collection("roll_builder_options").getFullList({
-      filter: "active = true",
-      sort: "category,sort_order",
-      fetch: noStoreFetch,
-    });
-    return records as unknown as RollBuilderOption[];
-  } catch {
-    return [];
-  }
-}
-
-export async function getSiteSettings(): Promise<SiteSettings | null> {
-  try {
-    const client = pb();
-    const record = await client.collection("site_settings").getFirstListItem("", {
-      expand: "daily_special_manual",
-      fetch: noStoreFetch,
-    });
-    return record as unknown as SiteSettings;
+    const nhost = getPublicNhost();
+    const res = await nhost.graphql.request<T>({ query: gql, variables }, { cache: "no-store" });
+    return res.body.data ?? null;
   } catch {
     return null;
   }
+}
+
+export async function getMenuItems(): Promise<MenuItem[]> {
+  const data = await query<{ menu_items: MenuItem[] }>(`
+    query {
+      menu_items(where: { active: { _eq: true } }, order_by: [{ category: asc }, { sort_order: asc }]) {
+        ${MENU_ITEM_FIELDS}
+      }
+    }
+  `);
+  return data?.menu_items ?? [];
+}
+
+export async function getLocations(): Promise<Location[]> {
+  const data = await query<{ locations: Location[] }>(`
+    query {
+      locations(order_by: { sort_order: asc }) {
+        id name city address phone hours_weekdays hours_weekend rating reviews_count google_maps_url sort_order
+      }
+    }
+  `);
+  return (data?.locations ?? []).map((l) => ({
+    ...l,
+    hours_weekdays: l.hours_weekdays ?? "",
+    hours_weekend: l.hours_weekend ?? "",
+  }));
+}
+
+export async function getTestimonials(): Promise<Testimonial[]> {
+  const data = await query<{ testimonials: Testimonial[] }>(`
+    query {
+      testimonials(where: { active: { _eq: true } }, order_by: { sort_order: asc }) {
+        id author_name location_name quote rating source active sort_order
+      }
+    }
+  `);
+  return data?.testimonials ?? [];
+}
+
+export async function getRollBuilderOptions(): Promise<RollBuilderOption[]> {
+  const data = await query<{ roll_builder_options: RollBuilderOption[] }>(`
+    query {
+      roll_builder_options(where: { active: { _eq: true } }, order_by: [{ category: asc }, { sort_order: asc }]) {
+        id category name price active sort_order
+      }
+    }
+  `);
+  return data?.roll_builder_options ?? [];
+}
+
+export async function getSiteSettings(): Promise<SiteSettings | null> {
+  const data = await query<{ site_settings: SiteSettings[] }>(`
+    query {
+      site_settings(limit: 1) {
+        id hero_headline hero_subtext daily_special_manual_id roll_builder_base_price
+        google_reviews_url wolt_url_sigulda wolt_url_cesis
+        daily_special_manual {
+          ${MENU_ITEM_FIELDS}
+        }
+      }
+    }
+  `);
+  return data?.site_settings?.[0] ?? null;
 }
 
 /**
@@ -94,7 +94,7 @@ export function resolveDailySpecial(
   menuItems: MenuItem[],
   settings: SiteSettings | null
 ): { item: MenuItem | null; isManual: boolean } {
-  const manual = settings?.expand?.daily_special_manual;
+  const manual = settings?.daily_special_manual;
   if (manual) {
     return { item: manual, isManual: true };
   }

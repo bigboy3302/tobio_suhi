@@ -9,6 +9,7 @@ import MobileOrderBar from "@/components/MobileOrderBar";
 import RollBuilder from "@/components/RollBuilder";
 import Testimonials from "@/components/Testimonials";
 import WhyUs from "@/components/WhyUs";
+import WoltCTA from "@/components/WoltCTA";
 import {
   DAY_NAMES_LV,
   getLocations,
@@ -44,6 +45,7 @@ export default async function Home() {
         <WhyUs locations={locations} />
         <RollBuilder options={rollOptions} basePrice={settings?.roll_builder_base_price ?? 4.9} />
         <MenuGrid items={menuItems} />
+        <WoltCTA settings={settings} />
         <Locations locations={locations} />
         <Testimonials testimonials={testimonials} />
         <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />

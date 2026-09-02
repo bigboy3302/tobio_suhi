@@ -12,9 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // PocketBase's own JSVM migration files — different runtime/conventions,
-    // not part of the Next.js app.
-    "pocketbase/**",
   ]),
 ]);
 

@@ -26,7 +26,6 @@ export interface MenuItem {
   size_large_label?: string;
   category: MenuCategory;
   tags: MenuTag[];
-  image_url: string;
   active: boolean;
   sort_order: number;
 }
@@ -71,12 +70,12 @@ export interface SiteSettings {
   id: string;
   hero_headline: string;
   hero_subtext: string;
-  daily_special_manual: string;
+  daily_special_manual_id: string | null;
+  daily_special_manual: MenuItem | null;
   roll_builder_base_price: number;
   google_reviews_url: string;
-  expand?: {
-    daily_special_manual?: MenuItem;
-  };
+  wolt_url_sigulda: string;
+  wolt_url_cesis: string;
 }
 
 export const CATEGORY_LABELS: Record<MenuCategory, string> = {

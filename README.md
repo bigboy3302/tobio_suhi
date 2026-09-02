@@ -1,46 +1,63 @@
 # Tobio Sushi — demo site
 
-Next.js 16 (App Router, TypeScript, Tailwind v4) frontend backed by a local
-[PocketBase](https://pocketbase.io) instance for content (menu, locations,
-testimonials, roll-builder options, site settings).
+Next.js 16 (App Router, TypeScript, Tailwind v4) frontend backed by
+[Nhost](https://nhost.io) — a managed PostgreSQL database, GraphQL API
+(Hasura), and auth service. There's no backend process to run locally;
+Nhost is a hosted cloud project.
 
 ## Running locally
 
-Two processes, both local:
-
 ```bash
-# 1. Backend — PocketBase (DB + auth + admin UI), from the project root
-cd pocketbase && ./pocketbase serve --http=127.0.0.1:8090
-
-# 2. Frontend — Next.js, in a second terminal, from the project root
 npm run dev
 ```
 
 - Site: http://localhost:3000
-- PocketBase admin UI: http://127.0.0.1:8090/_/
+- Admin panel: http://localhost:3000/admin
 
 Admin login: `adriansraitums95@gmail.com` — password was generated at setup
-time and shared separately (change it from the admin UI's account settings
-once you've logged in).
+time and shared separately. There's no public sign-up; only that one account
+can log in and edit content.
 
-## Why the site updates when you edit content in the admin UI
+## Environment variables
 
-Every page fetch (`src/lib/data.ts`) queries PocketBase directly over HTTP
-with `cache: "no-store"`, and the homepage is marked `force-dynamic`. There's
-no build step or cache in between — edit a price or testimonial in the
-PocketBase admin UI, reload the site, and the change is there.
+Set in `.env.local` (gitignored):
 
-## `node_modules`, `.next`, and `pocketbase/pb_data` are symlinks — don't move them back
+```
+NEXT_PUBLIC_NHOST_SUBDOMAIN=whinhywwlviydqcfnxkz
+NEXT_PUBLIC_NHOST_REGION=eu-central-1
+```
+
+These aren't secret — they're just the coordinates the Nhost SDK uses to
+build service URLs, and the same two values need to go into Vercel's project
+environment variables when you deploy the frontend.
+
+The Hasura **admin secret** is a separate, actually-sensitive credential
+(found in the Nhost dashboard → Settings → Secrets → `HASURA_GRAPHQL_ADMIN_SECRET`,
+write-only — Nhost never shows a saved value back). It was only ever used
+server-side, one-off, to create tables/permissions/seed data via direct
+`curl` calls during setup. It is **not** in any file in this repo and the
+running app never needs it — only the `user`-role JWT from a logged-in
+admin session does, which Hasura permissions already scope to full CRUD on
+these 5 tables and nothing else.
+
+## Why the site updates when you edit content in the admin panel
+
+Every page fetch (`src/lib/data.ts`) queries the public Nhost GraphQL
+endpoint directly with `cache: "no-store"`, and the homepage is marked
+`force-dynamic`. There's no build step or cache in between — edit something
+in `/admin`, reload the site, and the change is there.
+
+## `node_modules` and `.next` are symlinks — don't move them back
 
 This project lives under `~/Documents`, which is synced by iCloud Drive
-("Desktop & Documents Folders"). iCloud tries to sync every file individually,
-and `node_modules` alone is tens of thousands of small files — that made
-`next dev` unusable (every file read got stuck for seconds behind iCloud's
-sync daemons). The fix: `node_modules`, `.next`, and `pocketbase/pb_data` were
-moved to `~/Library/Caches/tobio_suhi/` (which macOS never syncs to iCloud)
-and replaced in the project with symlinks pointing there. Everything works
-exactly the same — `npm install`, `npm run dev`, etc. — just don't delete the
-symlinks or move their targets back into `~/Documents`.
+("Desktop & Documents Folders"). iCloud tries to sync every file
+individually, and `node_modules` alone is tens of thousands of small files —
+that made `next dev` unusable (every file read got stuck for seconds behind
+iCloud's sync daemons). The fix: `node_modules` and `.next` were moved to
+`~/Library/Caches/tobio_suhi/` (which macOS never syncs to iCloud) and
+replaced in the project with symlinks pointing there. Everything works
+exactly the same — `npm install`, `npm run dev`, etc. — just don't delete
+the symlinks or move their targets back into `~/Documents`.
 
 One consequence: Next.js's default bundler, Turbopack, refuses to follow a
 symlink that points outside the project's filesystem root, so `dev`/`build`
@@ -53,29 +70,33 @@ project outside iCloud (recommended long-term — see below) you can drop
 outside iCloud's sync scope, and undo the symlink workaround. Not required —
 the current setup works fine — just cleaner.
 
-## Content model (PocketBase collections)
+## Content model (Postgres tables via Hasura/Nhost)
 
-All public-read, superuser-write only:
+`public` role = read-only (and only `active = true` rows on the three tables
+that have that column); `user` role (the one signed-in admin) = full CRUD.
 
-- `menu_items` — name, description, price, category, tags, sort_order, active
+- `menu_items` — name, description, price, `price_large` (for the 8pc/16pc
+  dual pricing tobio.lv uses), size labels, category, tags, active, sort_order
 - `locations` — Sigulda & Cēsis: address, phone, hours, rating, maps link
 - `testimonials` — author, quote, rating, source
-- `roll_builder_options` — rice / protein / extra options with prices, used
-  by the "Uztaisi savu roll'u" builder
-- `site_settings` — single record: hero copy, roll-builder base price,
-  Google reviews link, and an optional manual override for the daily pick
-  (`daily_special_manual`, a relation to `menu_items`) — if unset, the site
-  falls back to a day-of-week rotation through the curated menu items
+- `roll_builder_options` — rice/protein/extra options for the "Uztaisi savu
+  roll'u" builder, using only ingredient names that actually appear on the
+  real menu (pricing for this feature is illustrative — Tobio doesn't
+  actually sell build-your-own à la carte, see conversation)
+- `site_settings` — single row: hero copy, roll-builder base price, Google
+  reviews link, both Wolt ordering links, and an optional manual override
+  for the daily pick (`daily_special_manual_id`, FK to `menu_items`) — if
+  unset, the site falls back to a day-of-week rotation through the menu
   (`src/lib/data.ts` → `resolveDailySpecial`)
 
-The schema itself is versioned as PocketBase migrations in
-`pocketbase/pb_migrations/` (committed to git); the actual data lives in
-`pocketbase/pb_data/` (gitignored — it's a local SQLite database, not source).
+Schema + permissions were created via direct SQL/Hasura metadata calls
+during setup (see conversation for the exact statements) rather than a
+committed migrations folder — Nhost's own config-as-code (`nhost.toml` +
+dashboard) is the source of truth for this project's schema going forward.
 
-## Deploying for real (not done yet — see conversation for the outline)
+## Deploying for real
 
-- PocketBase: a small always-on VM (e.g. Oracle Cloud Always Free, EU region)
-  running the `pocketbase` binary as a systemd service behind a domain/HTTPS
-  (Caddy or nginx).
-- Frontend: deploy to Vercel, pointing `NEXT_PUBLIC_POCKETBASE_URL` at the
-  production PocketBase domain instead of `127.0.0.1`.
+- **Nhost**: already a hosted cloud project — nothing to deploy, it's live now.
+- **Frontend**: deploy to Vercel, set `NEXT_PUBLIC_NHOST_SUBDOMAIN` and
+  `NEXT_PUBLIC_NHOST_REGION` (same values as `.env.local`) in the Vercel
+  project's environment variables.

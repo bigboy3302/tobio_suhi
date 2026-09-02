@@ -1,8 +1,5 @@
-import { Award, Leaf, MapPin, Send, Sparkles, Star } from "lucide-react";
+import { Award, Leaf, MapPin, PartyPopper, Sparkles, Star } from "lucide-react";
 import type { Location } from "@/lib/types";
-
-const WOLT_SIGULDA = "https://wolt.com/en/lva/sigulda/restaurant/tobio-sushi";
-const WOLT_CESIS = "https://wolt.com/en/lva/cesis/restaurant/tobio-sushi-cesis";
 
 export default function WhyUs({ locations }: { locations: Location[] }) {
   const avgRating =
@@ -49,27 +46,9 @@ export default function WhyUs({ locations }: { locations: Location[] }) {
         </div>
 
         <div className="rounded-3xl bg-matcha p-6 text-cream">
-          <Send className="h-7 w-7" />
-          <h3 className="mt-3 font-display text-lg font-semibold">Pasūti Wolt lietotnē</h3>
-          <p className="mt-1 text-xs text-cream/80">Piegādi nodrošina Wolt</p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            <a
-              href={WOLT_SIGULDA}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-cream/15 px-2.5 py-1 text-[11px] font-semibold hover:bg-cream/25"
-            >
-              Sigulda
-            </a>
-            <a
-              href={WOLT_CESIS}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-cream/15 px-2.5 py-1 text-[11px] font-semibold hover:bg-cream/25"
-            >
-              Cēsis
-            </a>
-          </div>
+          <PartyPopper className="h-7 w-7" />
+          <h3 className="mt-3 font-display text-lg font-semibold">Suši seti svētkiem</h3>
+          <p className="mt-1 text-xs text-cream/80">No 24 līdz 48 gabaliņiem lielākai kompānijai</p>
         </div>
 
         <div className="rounded-3xl bg-gold p-6 text-ink">

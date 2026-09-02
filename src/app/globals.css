@@ -52,3 +52,18 @@ body {
   background: var(--color-coral);
   color: var(--color-cream);
 }
+
+/* shared form-field style for the /admin CRUD panels */
+.admin-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  background: var(--color-cream);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.admin-input:focus {
+  border-color: var(--color-coral);
+}
