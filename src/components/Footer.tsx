@@ -33,7 +33,16 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-export default function Footer({ locations }: { locations: Location[] }) {
+export default function Footer({
+  locations,
+  year,
+}: {
+  locations: Location[];
+  /** Passed from the server rather than computed here with `new Date()`,
+   *  which would re-run at hydration time on the visitor's own clock and
+   *  could mismatch the server's render right at a year boundary. */
+  year: number;
+}) {
   const { t } = useLanguage();
   return (
     <footer className="mt-auto border-t border-ink/10 bg-cream pb-24 pt-10 md:pb-10">
@@ -80,7 +89,7 @@ export default function Footer({ locations }: { locations: Location[] }) {
         </div>
       </div>
       <p className="mx-auto mt-8 max-w-7xl px-4 text-xs text-ink-soft/70 sm:px-6 lg:px-8">
-        &copy; {new Date().getFullYear()} Tobio Sushi. {t("footer.rights")}
+        &copy; {year} Tobio Sushi. {t("footer.rights")}
       </p>
     </footer>
   );

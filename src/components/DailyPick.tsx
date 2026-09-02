@@ -7,14 +7,19 @@ import { DAY_NAMES, useLanguage } from "@/lib/i18n";
 export default function DailyPick({
   item,
   isManual,
+  dayOfWeek,
 }: {
   item: MenuItem | null;
   isManual: boolean;
+  /** Server-computed (see resolveDailySpecial) — never recomputed with
+   *  `new Date()` here, since that would re-run at hydration time using the
+   *  visitor's own clock and could mismatch the server's render. */
+  dayOfWeek: number;
 }) {
   const { lang, t } = useLanguage();
   if (!item) return null;
 
-  const dayName = DAY_NAMES[lang][new Date().getDay()];
+  const dayName = DAY_NAMES[lang][dayOfWeek];
 
   return (
     <section id="izveletie" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -23,7 +23,7 @@ export default async function MenuPage() {
       <main className="flex-1 pt-6">
         <MenuGrid items={menuItems} />
       </main>
-      <Footer locations={locations} />
+      <Footer locations={locations} year={new Date().getFullYear()} />
       <MobileOrderBar locations={locations} />
     </>
   );

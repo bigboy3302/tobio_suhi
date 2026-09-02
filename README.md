@@ -167,6 +167,40 @@ Places API bills per request past that allotment). Google's Place Details
 `reviews` field returns at most 5 reviews per place, in whatever
 order/selection Google provides; there's no way to curate which ones show.
 
+## Structured data (JSON-LD)
+
+The homepage renders a `Restaurant` schema.org block per location (as a
+server-rendered `<script type="application/ld+json">`, so crawlers see it in
+the initial HTML — see `src/lib/structuredData.ts`) — Sigulda and Cēsis are
+each their own `Restaurant` entity, not one combined one. Opening hours come
+from the same `hours_weekdays`/`hours_weekend` admin fields shown on the
+page, so it can't go stale when the owner edits hours in `/admin`. The
+`aggregateRating` prefers Google's live rating/review count (the same
+Places API call already feeding Reviews and the open/closed badge) over the
+location's stored `rating`/`reviews_count`, falling back to the stored value
+only if Google's data is unavailable — this is deliberate so the number in
+search results can't drift from what's actually on the page.
+
+After deploying, validate both entries with [Google's Rich Results
+Test](https://search.google.com/test/rich-results) against the live URL.
+
+## A note on hydration errors and `new Date()`
+
+Two components previously called `new Date()` directly during render
+(`DailyPick`'s weekday label, `Footer`'s copyright year) despite being
+server-rendered — that meant the *server's* render (Vercel's clock/timezone)
+and the *client's* hydration render (the visitor's own clock/timezone) could
+compute a different day or year and produce a React hydration error (#418)
+whenever they landed on opposite sides of a day/year boundary. Both values
+are now computed once, server-side (`resolveDailySpecial` in `src/lib/data.ts`
+for the weekday; inline in each page for the year) and passed down as props,
+so the client never recomputes them. If a similar "computed at render time"
+value gets added elsewhere, prefer this pattern (compute server-side, pass
+as a prop) over calling `new Date()`/`Math.random()`/reading `window` during
+render — see `src/components/OpenStatusBadge.tsx` for the alternative
+pattern (defer to `useEffect`, stable placeholder on first paint) for values
+that only make sense once mounted.
+
 ## Deploying for real
 
 - **Nhost**: already a hosted cloud project — nothing to deploy, it's live now.

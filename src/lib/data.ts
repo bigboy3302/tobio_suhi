@@ -99,10 +99,17 @@ export async function getSiteCopy(): Promise<CopyOverrides> {
 export function resolveDailySpecial(
   menuItems: MenuItem[],
   settings: SiteSettings | null
-): { item: MenuItem | null; isManual: boolean } {
+): { item: MenuItem | null; isManual: boolean; dayOfWeek: number } {
+  // Computed once, here, on the server — passed down as a prop rather than
+  // ever calling `new Date()` again in the client component that displays
+  // it, which would re-run at hydration time using the visitor's own clock
+  // and mismatch the server's render (React hydration error #418) whenever
+  // the server and visitor are in different timezones.
+  const dayOfWeek = new Date().getDay();
+
   const manual = settings?.daily_special_manual;
   if (manual) {
-    return { item: manual, isManual: true };
+    return { item: manual, isManual: true, dayOfWeek };
   }
 
   const curated = menuItems.filter(
@@ -115,12 +122,11 @@ export function resolveDailySpecial(
   );
   const pool = curated.length > 0 ? curated : dishes.length > 0 ? dishes : menuItems;
   if (pool.length === 0) {
-    return { item: null, isManual: false };
+    return { item: null, isManual: false, dayOfWeek };
   }
 
-  const dayOfWeek = new Date().getDay(); // 0 = Sunday ... 6 = Saturday
   const item = pool[dayOfWeek % pool.length];
-  return { item, isManual: false };
+  return { item, isManual: false, dayOfWeek };
 }
 
 /**

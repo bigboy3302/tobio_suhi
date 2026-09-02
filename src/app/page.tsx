@@ -34,11 +34,11 @@ export default async function Home() {
     getSiteSettings(),
   ]);
 
-  const { item: dailyItem, isManual } = resolveDailySpecial(menuItems, settings);
+  const { item: dailyItem, isManual, dayOfWeek } = resolveDailySpecial(menuItems, settings);
   const previewItems = pickMenuPreviewItems(menuItems);
   const placeData = await getGooglePlaceData(locations);
   const openNowByCity = Object.fromEntries(placeData.map((p) => [p.city, p.openNow]));
-  const jsonLd = buildRestaurantJsonLd(locations, SITE_URL);
+  const jsonLd = buildRestaurantJsonLd(locations, placeData, SITE_URL);
 
   return (
     <>
@@ -50,7 +50,7 @@ export default async function Home() {
       <main className="flex-1">
         <Hero settings={settings} menuItems={menuItems} locations={locations} />
         <div className="mt-4">
-          <DailyPick item={dailyItem} isManual={isManual} />
+          <DailyPick item={dailyItem} isManual={isManual} dayOfWeek={dayOfWeek} />
         </div>
         <WhyUs locations={locations} />
         <Story />
@@ -65,7 +65,7 @@ export default async function Home() {
         <GoogleReviews placeData={placeData} />
         <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />
       </main>
-      <Footer locations={locations} />
+      <Footer locations={locations} year={new Date().getFullYear()} />
       <MobileOrderBar locations={locations} />
     </>
   );

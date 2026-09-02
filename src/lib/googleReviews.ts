@@ -14,6 +14,12 @@ export interface GooglePlaceData {
   reviews: GoogleReview[];
   /** Google's own live open/closed status for this place, or null if unavailable. */
   openNow: boolean | null;
+  /** Google's live aggregate rating/count — used to keep the JSON-LD
+   *  `aggregateRating` in sync with what Reviews actually shows, rather than
+   *  drifting from a separately hand-maintained value. Null if unavailable
+   *  (callers should fall back to the location's own stored rating/count). */
+  rating: number | null;
+  reviewsCount: number | null;
 }
 
 interface PlaceDetailsReview {
@@ -29,6 +35,8 @@ interface PlaceDetailsResponse {
   result?: {
     reviews?: PlaceDetailsReview[];
     opening_hours?: { open_now?: boolean };
+    rating?: number;
+    user_ratings_total?: number;
   };
 }
 
@@ -66,19 +74,19 @@ export async function getGooglePlaceData(locations: Location[]): Promise<GoogleP
 async function fetchPlaceData(placeId: string, city: string, apiKey: string): Promise<GooglePlaceData> {
   const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
   url.searchParams.set("place_id", placeId);
-  url.searchParams.set("fields", "reviews,opening_hours");
+  url.searchParams.set("fields", "reviews,opening_hours,rating,user_ratings_total");
   url.searchParams.set("key", apiKey);
 
   try {
     const res = await fetch(url.toString(), { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) {
       console.error(`Google Places request failed for ${city}: HTTP ${res.status}`);
-      return { city, reviews: [], openNow: null };
+      return { city, reviews: [], openNow: null, rating: null, reviewsCount: null };
     }
     const data: PlaceDetailsResponse = await res.json();
     if (data.status !== "OK" || !data.result) {
       console.error(`Google Places returned status "${data.status}" for ${city}`);
-      return { city, reviews: [], openNow: null };
+      return { city, reviews: [], openNow: null, rating: null, reviewsCount: null };
     }
     return {
       city,
@@ -91,9 +99,11 @@ async function fetchPlaceData(placeId: string, city: string, apiKey: string): Pr
         locationCity: city,
       })),
       openNow: data.result.opening_hours?.open_now ?? null,
+      rating: data.result.rating ?? null,
+      reviewsCount: data.result.user_ratings_total ?? null,
     };
   } catch (e) {
     console.error(`Google Places request threw for ${city}:`, e);
-    return { city, reviews: [], openNow: null };
+    return { city, reviews: [], openNow: null, rating: null, reviewsCount: null };
   }
 }
