@@ -10,10 +10,11 @@ import MenuItemsAdmin from "@/components/admin/MenuItemsAdmin";
 import LocationsAdmin from "@/components/admin/LocationsAdmin";
 import TestimonialsAdmin from "@/components/admin/TestimonialsAdmin";
 import SiteSettingsAdmin from "@/components/admin/SiteSettingsAdmin";
+import SiteCopyAdmin from "@/components/admin/SiteCopyAdmin";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "menu" | "locations" | "testimonials" | "settings";
+type Tab = "menu" | "locations" | "testimonials" | "copy" | "settings";
 
 export default function AdminPage() {
   const [nhost] = useState<NhostClient>(() => createBrowserNhost());
@@ -47,6 +48,7 @@ export default function AdminPage() {
     { id: "menu", label: "Ēdienkarte" },
     { id: "locations", label: "Atrašanās vietas" },
     { id: "testimonials", label: "Atsauksmes" },
+    { id: "copy", label: "Saturs" },
     { id: "settings", label: "Iestatījumi" },
   ];
 
@@ -88,6 +90,7 @@ export default function AdminPage() {
         {tab === "menu" && <MenuItemsAdmin nhost={nhost} />}
         {tab === "locations" && <LocationsAdmin nhost={nhost} />}
         {tab === "testimonials" && <TestimonialsAdmin nhost={nhost} />}
+        {tab === "copy" && <SiteCopyAdmin nhost={nhost} />}
         {tab === "settings" && <SiteSettingsAdmin nhost={nhost} />}
       </main>
     </div>

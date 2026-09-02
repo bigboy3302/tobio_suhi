@@ -15,6 +15,11 @@ const STRINGS: Record<string, Record<Lang, string>> = {
   "nav.expand": { lv: "Izvērst izvēlni", en: "Open menu" },
   "nav.callCity": { lv: "Zvanīt uz {city}", en: "Call {city}" },
 
+  "hero.headline": { lv: "Svaigi suši. Gatavots ar sirdi.", en: "Fresh sushi. Made with heart." },
+  "hero.subtext": {
+    lv: "Roku darbs, svaigi produkti un japāņu gatavošanas tradīcijas — katru dienu no jauna Siguldā un Cēsīs.",
+    en: "Handmade, fresh ingredients, and Japanese culinary tradition — made fresh every day in Sigulda and Cēsis.",
+  },
   "hero.ctaMenu": { lv: "Skatīt ēdienkarti", en: "View the menu" },
   "hero.ctaCall": { lv: "Piezvanīt un pasūtīt", en: "Call to order" },
   "hero.statItems": { lv: "ēdienkartes pozīcijas", en: "menu items" },
@@ -39,8 +44,11 @@ const STRINGS: Record<string, Record<Lang, string>> = {
     lv: "No 24 līdz 48 gabaliņiem lielākai kompānijai",
     en: "24 to 48 pieces for a larger group",
   },
-  "why.chefTitle": { lv: "Šefpavāra pieredze", en: "Chef's experience" },
-  "why.chefBody": { lv: "10+ gadu japāņu virtuves prasme", en: "10+ years of Japanese kitchen craft" },
+  "why.chefTitle": { lv: "Roku darbs ar rūpēm", en: "Hand-rolled care" },
+  "why.chefBody": {
+    lv: "Katrs rullītis tiek tīts ar rokām un pasniegts svaigs — katru dienu no jauna.",
+    en: "Every roll is hand-rolled and served fresh — made new each day.",
+  },
   "why.builderTitle": { lv: "Uztaisi savu roll'u", en: "Build your own roll" },
   "why.builderBody": {
     lv: "Izvēlies rīsus, olbaltumvielu un piedevas — cena aprēķinās uzreiz",
@@ -50,8 +58,8 @@ const STRINGS: Record<string, Record<Lang, string>> = {
 
   "story.eyebrow": { lv: "Mūsu stāsts", en: "Our story" },
   "story.headline": {
-    lv: "Aiz katra rullīša stāv pavārs ar vairāk nekā 10 gadu japāņu virtuves pieredzi.",
-    en: "Behind every roll is a chef with over 10 years of Japanese kitchen experience.",
+    lv: "Aiz katra rullīša stāv roku darbs un svaigas sastāvdaļas.",
+    en: "Behind every roll is hand-rolled care and fresh ingredients.",
   },
   "story.body": {
     lv: "Tobio komanda katru dienu gatavo no jauna — svaigs lasis, rūpīgi vārīti rīsi un roku darbā tīti ruļļi, bez saldēšanas un bez steigas. Šodien mūs atradīsi divās vietās — Siguldā un Cēsīs — ar vienādu rūpēm par katru šķīvi abās.",
@@ -152,7 +160,15 @@ const LanguageContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; 
   t: (key) => key,
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export type CopyOverrides = Record<string, { lv: string; en: string }>;
+
+export function LanguageProvider({
+  children,
+  initialCopy,
+}: {
+  children: React.ReactNode;
+  initialCopy?: CopyOverrides;
+}) {
   const [lang, setLangState] = useState<Lang>("lv");
 
   useEffect(() => {
@@ -167,8 +183,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const t: TranslateFn = useMemo(
     () => (key, vars) => {
+      // admin-edited copy (site_copy table) wins when set; the dictionary
+      // below is the fallback default so a missing/blank DB row never
+      // renders empty text.
+      const override = initialCopy?.[key]?.[lang];
       const entry = STRINGS[key];
-      let str = entry ? entry[lang] : key;
+      let str = override || (entry ? entry[lang] : key);
       if (vars) {
         for (const [k, v] of Object.entries(vars)) {
           str = str.replace(`{${k}}`, String(v));
@@ -176,7 +196,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
       return str;
     },
-    [lang]
+    [lang, initialCopy]
   );
 
   const value = useMemo(() => ({ lang, setLang, t }), [lang, t]);

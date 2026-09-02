@@ -1,4 +1,5 @@
 import { getPublicNhost } from "./nhost";
+import type { CopyOverrides } from "./i18n";
 import type {
   Location,
   MenuItem,
@@ -75,9 +76,9 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
   const data = await query<{ site_settings: SiteSettings[] }>(`
     query {
       site_settings(limit: 1) {
-        id hero_headline hero_subtext daily_special_manual_id roll_builder_base_price
+        id daily_special_manual_id roll_builder_base_price
         google_reviews_url wolt_url_sigulda wolt_url_cesis
-        hero_image_id hero_image_alt story_heading story_body allergen_text
+        hero_image_id hero_image_alt
         daily_special_manual {
           ${MENU_ITEM_FIELDS}
         }
@@ -85,6 +86,26 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     }
   `);
   return data?.site_settings?.[0] ?? null;
+}
+
+/**
+ * All admin-editable UI copy (headings, body text, disclaimers), keyed to
+ * match the i18n dictionary keys in lib/i18n.tsx — see CopyOverrides there
+ * for how a DB row here takes precedence over the static dictionary default.
+ */
+export async function getSiteCopy(): Promise<CopyOverrides> {
+  const data = await query<{ site_copy: { key: string; lv: string; en: string }[] }>(`
+    query {
+      site_copy {
+        key lv en
+      }
+    }
+  `);
+  const out: CopyOverrides = {};
+  for (const row of data?.site_copy ?? []) {
+    out[row.key] = { lv: row.lv, en: row.en };
+  }
+  return out;
 }
 
 /**

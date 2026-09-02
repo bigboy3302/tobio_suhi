@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Leaf, MapPin, PartyPopper, Sparkles, Star } from "lucide-react";
+import { HandPlatter, Leaf, MapPin, PartyPopper, Sparkles, Star } from "lucide-react";
 import type { Location } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 
@@ -53,7 +53,7 @@ export default function WhyUs({ locations }: { locations: Location[] }) {
         </div>
 
         <div className="rounded-3xl bg-gold p-6 text-ink">
-          <Award className="h-7 w-7" />
+          <HandPlatter className="h-7 w-7" />
           <h3 className="mt-3 font-display text-lg font-semibold">{t("why.chefTitle")}</h3>
           <p className="mt-1 text-xs text-ink/75">{t("why.chefBody")}</p>
         </div>

@@ -72,8 +72,6 @@ export interface RollBuilderOption {
 
 export interface SiteSettings {
   id: string;
-  hero_headline: string;
-  hero_subtext: string;
   daily_special_manual_id: string | null;
   daily_special_manual: MenuItem | null;
   roll_builder_base_price: number;
@@ -82,9 +80,12 @@ export interface SiteSettings {
   wolt_url_cesis: string;
   hero_image_id: string | null;
   hero_image_alt: string | null;
-  story_heading: string | null;
-  story_body: string | null;
-  allergen_text: string | null;
+}
+
+export interface SiteCopyRow {
+  key: string;
+  lv: string;
+  en: string;
 }
 
 export const CATEGORY_LABELS: Record<MenuCategory, string> = {

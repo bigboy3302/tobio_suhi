@@ -7,9 +7,9 @@ import type { MenuItem, SiteSettings } from "@/lib/types";
 import ImageUploadField from "./ImageUploadField";
 
 const SETTINGS_FIELDS = `
-  id hero_headline hero_subtext daily_special_manual_id roll_builder_base_price
+  id daily_special_manual_id roll_builder_base_price
   google_reviews_url wolt_url_sigulda wolt_url_cesis
-  hero_image_id hero_image_alt story_heading story_body allergen_text
+  hero_image_id hero_image_alt
 `;
 
 export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
@@ -59,8 +59,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
         {
           id: settings.id,
           input: {
-            hero_headline: settings.hero_headline,
-            hero_subtext: settings.hero_subtext,
             daily_special_manual_id: settings.daily_special_manual_id || null,
             roll_builder_base_price: Number(settings.roll_builder_base_price),
             google_reviews_url: settings.google_reviews_url,
@@ -68,9 +66,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
             wolt_url_cesis: settings.wolt_url_cesis,
             hero_image_id: settings.hero_image_id,
             hero_image_alt: settings.hero_image_id ? settings.hero_image_alt || null : null,
-            story_heading: settings.story_heading || null,
-            story_body: settings.story_body || null,
-            allergen_text: settings.allergen_text || null,
           },
         }
       );
@@ -87,7 +82,11 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
 
   return (
     <div>
-      <h2 className="mb-6 font-display text-2xl font-bold">Vietnes iestatījumi</h2>
+      <h2 className="mb-1 font-display text-2xl font-bold">Vietnes iestatījumi</h2>
+      <p className="mb-6 text-sm text-ink-soft">
+        Virsraksti, sadaļu teksti un cita vietnes formulējums ir pārcelts uz cilni{" "}
+        <strong>Saturs</strong>.
+      </p>
 
       {message && (
         <p className={`mb-4 text-sm ${message.type === "ok" ? "text-matcha-dark" : "text-red-600"}`}>
@@ -96,22 +95,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
       )}
 
       <form onSubmit={handleSave} className="max-w-xl rounded-2xl border border-ink/10 bg-cream-soft p-5">
-        <Field label="Hero virsraksts">
-          <input
-            value={settings.hero_headline}
-            onChange={(e) => setSettings({ ...settings, hero_headline: e.target.value })}
-            className="admin-input"
-          />
-        </Field>
-        <Field label="Hero apakšvirsraksts">
-          <textarea
-            value={settings.hero_subtext}
-            onChange={(e) => setSettings({ ...settings, hero_subtext: e.target.value })}
-            rows={2}
-            className="admin-input"
-          />
-        </Field>
-
         <ImageUploadField
           nhost={nhost}
           label="Hero fona attēls"
@@ -120,39 +103,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
           onImageChange={(id) => setSettings({ ...settings, hero_image_id: id })}
           onAltChange={(alt) => setSettings({ ...settings, hero_image_alt: alt })}
         />
-
-        <div className="mt-6 border-t border-ink/10 pt-5">
-          <p className="mb-1 text-sm font-semibold text-ink">Mūsu stāsts</p>
-          <p className="mb-3 text-xs text-ink-soft">
-            Ja atstāsi tukšu, vietnē rādīsies noklusējuma teksts.
-          </p>
-          <Field label="Virsraksts">
-            <input
-              value={settings.story_heading ?? ""}
-              onChange={(e) => setSettings({ ...settings, story_heading: e.target.value })}
-              className="admin-input"
-            />
-          </Field>
-          <Field label="Teksts">
-            <textarea
-              value={settings.story_body ?? ""}
-              onChange={(e) => setSettings({ ...settings, story_body: e.target.value })}
-              rows={3}
-              className="admin-input"
-            />
-          </Field>
-        </div>
-
-        <div className="mt-6 border-t border-ink/10 pt-5">
-          <Field label="Alergēnu brīdinājums (rādās virs ēdienkartes)">
-            <textarea
-              value={settings.allergen_text ?? ""}
-              onChange={(e) => setSettings({ ...settings, allergen_text: e.target.value })}
-              rows={2}
-              className="admin-input"
-            />
-          </Field>
-        </div>
 
         <Field label="Šodienas ieteikums (manuāla izvēle)">
           <select

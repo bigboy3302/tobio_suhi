@@ -16,10 +16,8 @@ export default function Hero({
   locations: Location[];
 }) {
   const { t } = useLanguage();
-  const headline = settings?.hero_headline || "Svaigi suši. Gatavots ar sirdi.";
-  const subtext =
-    settings?.hero_subtext ||
-    "Roku darbs, svaigi produkti un japāņu gatavošanas tradīcijas — katru dienu no jauna Siguldā un Cēsīs.";
+  const headline = t("hero.headline");
+  const subtext = t("hero.subtext");
 
   const marqueeNames = menuItems.slice(0, 12).map((m) => m.name);
   const primaryLocation = locations[0];

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bangers, Inter } from "next/font/google";
 import { LanguageProvider } from "@/lib/i18n";
+import { getSiteCopy } from "@/lib/data";
 import "./globals.css";
 
 const bangers = Bangers({
@@ -43,14 +44,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const copy = await getSiteCopy();
+
   return (
     <html
       lang="lv"
       className={`${bangers.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-jungle font-body">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider initialCopy={copy}>{children}</LanguageProvider>
       </body>
     </html>
   );

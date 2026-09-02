@@ -17,11 +17,9 @@ const TAG_ICONS: Partial<Record<MenuTag, React.ComponentType<{ className?: strin
 export default function MenuGrid({
   items,
   linkToFullMenu,
-  allergenText,
 }: {
   items: MenuItem[];
   linkToFullMenu?: boolean;
-  allergenText?: string | null;
 }) {
   const { t } = useLanguage();
   const categories = useMemo(() => {
@@ -60,9 +58,7 @@ export default function MenuGrid({
         )}
       </div>
 
-      <p className="mb-6 max-w-2xl text-xs text-ink-soft/80">
-        {allergenText || t("menu.allergenNote")}
-      </p>
+      <p className="mb-6 max-w-2xl text-xs text-ink-soft/80">{t("menu.allergenNote")}</p>
 
       <div className="mb-8 flex flex-wrap gap-2">
         <FilterButton

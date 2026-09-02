@@ -2,13 +2,7 @@
 
 import { useLanguage } from "@/lib/i18n";
 
-export default function Story({
-  heading,
-  body,
-}: {
-  heading?: string | null;
-  body?: string | null;
-}) {
+export default function Story() {
   const { t } = useLanguage();
 
   return (
@@ -18,10 +12,10 @@ export default function Story({
           {t("story.eyebrow")}
         </p>
         <p className="mx-auto mt-4 max-w-2xl font-display text-2xl leading-snug text-white sm:text-3xl">
-          {heading || t("story.headline")}
+          {t("story.headline")}
         </p>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70">
-          {body || t("story.body")}
+          {t("story.body")}
         </p>
       </div>
     </section>
