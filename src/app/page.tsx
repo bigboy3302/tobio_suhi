@@ -19,7 +19,7 @@ import {
   pickMenuPreviewItems,
   resolveDailySpecial,
 } from "@/lib/data";
-import { getGoogleReviews } from "@/lib/googleReviews";
+import { getGooglePlaceData } from "@/lib/googleReviews";
 import { buildRestaurantJsonLd } from "@/lib/structuredData";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,8 @@ export default async function Home() {
 
   const { item: dailyItem, isManual } = resolveDailySpecial(menuItems, settings);
   const previewItems = pickMenuPreviewItems(menuItems);
-  const googleReviews = await getGoogleReviews(locations);
+  const placeData = await getGooglePlaceData(locations);
+  const openNowByCity = Object.fromEntries(placeData.map((p) => [p.city, p.openNow]));
   const jsonLd = buildRestaurantJsonLd(locations, SITE_URL);
 
   return (
@@ -60,8 +61,8 @@ export default async function Home() {
         />
         <MenuPreview items={previewItems} />
         <WoltCTA settings={settings} />
-        <Locations locations={locations} settings={settings} />
-        <GoogleReviews reviews={googleReviews} />
+        <Locations locations={locations} settings={settings} openNowByCity={openNowByCity} />
+        <GoogleReviews placeData={placeData} />
         <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />
       </main>
       <Footer locations={locations} />

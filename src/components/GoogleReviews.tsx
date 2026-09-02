@@ -1,13 +1,14 @@
 "use client";
 
 import { Star } from "lucide-react";
-import type { GoogleReview } from "@/lib/googleReviews";
+import type { GooglePlaceData, GoogleReview } from "@/lib/googleReviews";
 import { useLanguage } from "@/lib/i18n";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
-export default function GoogleReviews({ reviews }: { reviews: GoogleReview[] }) {
+export default function GoogleReviews({ placeData }: { placeData: GooglePlaceData[] }) {
   const { t } = useLanguage();
-  if (reviews.length === 0) return null;
+  const groups = placeData.filter((p) => p.reviews.length > 0);
+  if (groups.length === 0) return null;
 
   return (
     <section id="atsauksmes" className="bg-cream-soft py-20">
@@ -21,9 +22,19 @@ export default function GoogleReviews({ reviews }: { reviews: GoogleReview[] }) 
           </h2>
         </div>
 
-        <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {reviews.map((review, i) => (
-            <ReviewCard key={i} review={review} index={i} />
+        <div className="space-y-8">
+          {groups.map((group) => (
+            <div
+              key={group.city}
+              className="rounded-3xl border border-ink/15 p-6 sm:p-8"
+            >
+              <h3 className="mb-5 font-display text-xl font-bold text-ink">{group.city}</h3>
+              <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {group.reviews.map((review, i) => (
+                  <ReviewCard key={i} review={review} index={i} />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -65,10 +76,7 @@ function ReviewCard({ review, index }: { review: GoogleReview; index: number }) 
             {review.authorName.charAt(0).toUpperCase()}
           </span>
         )}
-        <span className="text-sm font-semibold text-ink">
-          {review.authorName}
-          <span className="font-normal text-ink-soft"> &middot; {review.locationCity}</span>
-        </span>
+        <span className="text-sm font-semibold text-ink">{review.authorName}</span>
       </figcaption>
     </figure>
   );

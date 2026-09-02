@@ -9,6 +9,13 @@ export interface GoogleReview {
   locationCity: string;
 }
 
+export interface GooglePlaceData {
+  city: string;
+  reviews: GoogleReview[];
+  /** Google's own live open/closed status for this place, or null if unavailable. */
+  openNow: boolean | null;
+}
+
 interface PlaceDetailsReview {
   author_name: string;
   profile_photo_url?: string;
@@ -21,65 +28,72 @@ interface PlaceDetailsResponse {
   status: string;
   result?: {
     reviews?: PlaceDetailsReview[];
+    opening_hours?: { open_now?: boolean };
   };
 }
 
-const REVALIDATE_SECONDS = 60 * 60 * 24; // refresh once a day — reviews don't change fast enough to justify more, and this is a billed API past the free monthly quota
+// Reviews barely change day to day, but open/closed status does — a 24h
+// cache (fine for reviews alone) would show stale "closed"/"open" for hours
+// after the real status flips. Both are fetched in the same request, so this
+// interval has to serve both; 15 minutes keeps the status reasonably live
+// without hitting the API on every page load (still well within the free
+// monthly quota for two locations).
+const REVALIDATE_SECONDS = 60 * 15;
 
 /**
- * Real reviews pulled directly from each location's Google Business listing
- * via the Places API (Place Details, `reviews` field — capped at 5 per
- * place by Google, in whatever order/selection Google returns).
+ * Real reviews + live open/closed status pulled directly from each
+ * location's Google Business listing via the Places API (Place Details,
+ * `reviews` + `opening_hours` fields in one request — reviews capped at 5
+ * per place by Google, in whatever order/selection Google returns).
  *
  * Requires GOOGLE_PLACES_API_KEY (server-only env var) and a `google_place_id`
  * set on each location in /admin — see README for how to obtain both. If
- * either is missing, or the request fails for any reason, this returns an
- * empty array rather than ever falling back to placeholder text.
+ * either is missing, or the request fails for any reason, a location comes
+ * back with an empty reviews list and openNow: null rather than ever
+ * falling back to placeholder text.
  */
-export async function getGoogleReviews(locations: Location[]): Promise<GoogleReview[]> {
+export async function getGooglePlaceData(locations: Location[]): Promise<GooglePlaceData[]> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) return [];
 
-  const results = await Promise.all(
+  return Promise.all(
     locations
       .filter((loc) => loc.google_place_id)
-      .map((loc) => fetchPlaceReviews(loc.google_place_id!, loc.city, apiKey))
+      .map((loc) => fetchPlaceData(loc.google_place_id!, loc.city, apiKey))
   );
-
-  return results.flat();
 }
 
-async function fetchPlaceReviews(
-  placeId: string,
-  city: string,
-  apiKey: string
-): Promise<GoogleReview[]> {
+async function fetchPlaceData(placeId: string, city: string, apiKey: string): Promise<GooglePlaceData> {
   const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
   url.searchParams.set("place_id", placeId);
-  url.searchParams.set("fields", "reviews");
+  url.searchParams.set("fields", "reviews,opening_hours");
   url.searchParams.set("key", apiKey);
 
   try {
     const res = await fetch(url.toString(), { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) {
       console.error(`Google Places request failed for ${city}: HTTP ${res.status}`);
-      return [];
+      return { city, reviews: [], openNow: null };
     }
     const data: PlaceDetailsResponse = await res.json();
-    if (data.status !== "OK" || !data.result?.reviews) {
+    if (data.status !== "OK" || !data.result) {
       console.error(`Google Places returned status "${data.status}" for ${city}`);
-      return [];
+      return { city, reviews: [], openNow: null };
     }
-    return data.result.reviews.map((r) => ({
-      authorName: r.author_name,
-      authorPhotoUrl: r.profile_photo_url ?? null,
-      rating: r.rating,
-      text: r.text,
-      relativeTimeDescription: r.relative_time_description,
-      locationCity: city,
-    }));
+    return {
+      city,
+      reviews: (data.result.reviews ?? []).map((r) => ({
+        authorName: r.author_name,
+        authorPhotoUrl: r.profile_photo_url ?? null,
+        rating: r.rating,
+        text: r.text,
+        relativeTimeDescription: r.relative_time_description,
+        locationCity: city,
+      })),
+      openNow: data.result.opening_hours?.open_now ?? null,
+    };
   } catch (e) {
     console.error(`Google Places request threw for ${city}:`, e);
-    return [];
+    return { city, reviews: [], openNow: null };
   }
 }

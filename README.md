@@ -139,7 +139,8 @@ this working needs two things only the account owner can provide:
 Once both are in place (the key as an env var — locally in `.env.local`,
 in production in Vercel's project settings, redeploy after adding it — and
 a Place ID on each location), reviews start showing up automatically; no
-code change needed.
+code change needed. Reviews are grouped into one box per location (Sigulda /
+Cēsis) rather than mixed together.
 
 Until then, the Reviews section simply doesn't render (see
 `src/lib/googleReviews.ts` — any missing config or failed request returns an
@@ -148,10 +149,21 @@ aggregate "X out of 5 — N+ Google reviews" banner lower on the page is
 unaffected either way — it's driven by the rating/count already stored on
 each location, not by this API call.
 
-Reviews are fetched with a 24-hour cache (`next: { revalidate: 86400 }` in
-`getGoogleReviews`) rather than on every page load, both to keep content
-reasonably fresh and to stay well within/near the free monthly quota — the
-Places API bills per request past that allotment. Google's Place Details
+The same request also pulls each location's live `open_now` status from
+Google (`opening_hours` field, same API call as the reviews — no extra
+cost), shown as an "Open now"/"Closed" badge on each location card. This is
+now the authoritative source for that badge — note Google's actual listed
+hours can differ slightly from the `hours_weekdays`/`hours_weekend` text
+shown under the address (that text is a separate, simpler admin-entered
+field; the badge doesn't parse it). If Google's status isn't available for
+some reason, the badge falls back to computing it from that text field
+instead of disappearing outright (`src/lib/hours.ts`).
+
+Reviews + open/closed status are fetched together with a 15-minute cache
+(`next: { revalidate: 900 }` in `getGooglePlaceData`) rather than on every
+page load — short enough that "open now" doesn't go stale for hours, long
+enough to stay well within the free monthly quota for two locations (the
+Places API bills per request past that allotment). Google's Place Details
 `reviews` field returns at most 5 reviews per place, in whatever
 order/selection Google provides; there's no way to curate which ones show.
 

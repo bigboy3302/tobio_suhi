@@ -5,17 +5,26 @@ import type { Location } from "@/lib/types";
 import { getLocationOpenStatus } from "@/lib/hours";
 import { useLanguage } from "@/lib/i18n";
 
-export default function OpenStatusBadge({ location }: { location: Location }) {
+export default function OpenStatusBadge({
+  location,
+  openNow,
+}: {
+  location: Location;
+  /** Google's own live status, if available — takes priority when present. */
+  openNow: boolean | null;
+}) {
   const { t } = useLanguage();
-  // computed on mount, not at render time, since "now" must reflect the
-  // visitor's actual clock — computing it during SSR would bake in the
-  // server's render time instead and could mismatch on hydration
-  const [isOpen, setIsOpen] = useState<boolean | null>(null);
+  // Fallback only: computed client-side from the admin-entered hours text,
+  // used when Google's status isn't available (no API key/place id, or the
+  // request failed). Computed on mount, not at render time, since "now"
+  // must reflect the visitor's actual clock, not the server's render time.
+  const [fallback, setFallback] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setIsOpen(getLocationOpenStatus(location));
-  }, [location]);
+    if (openNow === null) setFallback(getLocationOpenStatus(location));
+  }, [location, openNow]);
 
+  const isOpen = openNow ?? fallback;
   if (isOpen === null) return null;
 
   return (

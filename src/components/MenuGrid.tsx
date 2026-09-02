@@ -52,8 +52,8 @@ export default function MenuGrid({ items }: { items: MenuItem[] }) {
       </div>
 
       <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((item) => (
-          <MenuItemCard key={item.id} item={item} />
+        {filtered.map((item, i) => (
+          <MenuItemCard key={item.id} item={item} revealDelay={(i % 3) * 100} />
         ))}
       </div>
     </section>

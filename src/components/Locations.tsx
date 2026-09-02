@@ -11,9 +11,11 @@ import OpenStatusBadge from "./OpenStatusBadge";
 export default function Locations({
   locations,
   settings,
+  openNowByCity,
 }: {
   locations: Location[];
   settings: SiteSettings | null;
+  openNowByCity?: Record<string, boolean | null>;
 }) {
   const { t } = useLanguage();
   if (locations.length === 0) return null;
@@ -36,7 +38,13 @@ export default function Locations({
 
       <div className="grid gap-6 md:grid-cols-2">
         {locations.map((loc, i) => (
-          <LocationCard key={loc.id} loc={loc} index={i} woltUrl={woltUrlByCity[loc.city]} />
+          <LocationCard
+            key={loc.id}
+            loc={loc}
+            index={i}
+            woltUrl={woltUrlByCity[loc.city]}
+            openNow={openNowByCity?.[loc.city] ?? null}
+          />
         ))}
       </div>
     </section>
@@ -47,10 +55,12 @@ function LocationCard({
   loc,
   index,
   woltUrl,
+  openNow,
 }: {
   loc: Location;
   index: number;
   woltUrl: string | undefined;
+  openNow: boolean | null;
 }) {
   const { t } = useLanguage();
   const reveal = useScrollReveal<HTMLDivElement>(index * 100);
@@ -100,7 +110,7 @@ function LocationCard({
             <p className="flex items-center gap-2 pl-6">{loc.hours_weekend}</p>
           )}
           <p className="flex items-center gap-2 pl-6">
-            <OpenStatusBadge location={loc} />
+            <OpenStatusBadge location={loc} openNow={openNow} />
           </p>
           {loc.reviews_count > 0 && (
             <p className="pl-6 text-xs text-ink-soft/80">
