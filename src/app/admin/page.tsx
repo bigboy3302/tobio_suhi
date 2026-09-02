@@ -47,7 +47,7 @@ export default function AdminPage() {
   const tabs: { id: Tab; label: string }[] = [
     { id: "menu", label: "Ēdienkarte" },
     { id: "locations", label: "Atrašanās vietas" },
-    { id: "testimonials", label: "Atsauksmes" },
+    { id: "testimonials", label: "Atsauksmes (nav aktīvs)" },
     { id: "copy", label: "Saturs" },
     { id: "settings", label: "Iestatījumi" },
   ];

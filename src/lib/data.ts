@@ -1,12 +1,6 @@
 import { getPublicNhost } from "./nhost";
 import type { CopyOverrides } from "./i18n";
-import type {
-  Location,
-  MenuItem,
-  RollBuilderOption,
-  SiteSettings,
-  Testimonial,
-} from "./types";
+import type { Location, MenuItem, RollBuilderOption, SiteSettings } from "./types";
 
 const MENU_ITEM_FIELDS = `
   id name description price price_large size_small_label size_large_label
@@ -39,7 +33,7 @@ export async function getLocations(): Promise<Location[]> {
     query {
       locations(order_by: { sort_order: asc }) {
         id name city address phone hours_weekdays hours_weekend rating reviews_count google_maps_url sort_order
-        image_id image_alt
+        google_place_id image_id image_alt
       }
     }
   `);
@@ -48,17 +42,6 @@ export async function getLocations(): Promise<Location[]> {
     hours_weekdays: l.hours_weekdays ?? "",
     hours_weekend: l.hours_weekend ?? "",
   }));
-}
-
-export async function getTestimonials(): Promise<Testimonial[]> {
-  const data = await query<{ testimonials: Testimonial[] }>(`
-    query {
-      testimonials(where: { active: { _eq: true } }, order_by: { sort_order: asc }) {
-        id author_name location_name quote rating source active sort_order
-      }
-    }
-  `);
-  return data?.testimonials ?? [];
 }
 
 export async function getRollBuilderOptions(): Promise<RollBuilderOption[]> {

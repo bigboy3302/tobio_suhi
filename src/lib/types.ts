@@ -43,6 +43,7 @@ export interface Location {
   rating: number;
   reviews_count: number;
   google_maps_url: string;
+  google_place_id: string | null;
   sort_order: number;
   image_id: string | null;
   image_alt: string | null;

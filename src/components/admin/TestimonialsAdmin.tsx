@@ -123,8 +123,17 @@ export default function TestimonialsAdmin({ nhost }: { nhost: NhostClient }) {
 
   return (
     <div>
+      <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <p className="font-semibold">Šī cilne vairs neietekmē vietni.</p>
+        <p className="mt-1">
+          Atsauksmju sadaļa vietnē tagad rāda reālas Google atsauksmes tieši no jūsu Google Business
+          profila, nevis šeit ievadītās. Šie ieraksti paliek datubāzē, bet vairs netiek rādīti
+          publiskajā vietnē — droši var ignorēt vai dzēst.
+        </p>
+      </div>
+
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-2xl font-bold">Atsauksmes ({items.length})</h2>
+        <h2 className="font-display text-2xl font-bold">Atsauksmes (nav aktīvs) ({items.length})</h2>
         <button
           type="button"
           onClick={() => setForm(EMPTY_FORM)}

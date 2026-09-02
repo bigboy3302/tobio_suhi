@@ -1,5 +1,6 @@
 import DailyPick from "@/components/DailyPick";
 import Footer from "@/components/Footer";
+import GoogleReviews from "@/components/GoogleReviews";
 import GoogleReviewsCTA from "@/components/GoogleReviewsCTA";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -8,7 +9,6 @@ import MenuPreview from "@/components/MenuPreview";
 import MobileOrderBar from "@/components/MobileOrderBar";
 import RollBuilder from "@/components/RollBuilder";
 import Story from "@/components/Story";
-import Testimonials from "@/components/Testimonials";
 import WhyUs from "@/components/WhyUs";
 import WoltCTA from "@/components/WoltCTA";
 import {
@@ -16,10 +16,10 @@ import {
   getMenuItems,
   getRollBuilderOptions,
   getSiteSettings,
-  getTestimonials,
   pickMenuPreviewItems,
   resolveDailySpecial,
 } from "@/lib/data";
+import { getGoogleReviews } from "@/lib/googleReviews";
 import { buildRestaurantJsonLd } from "@/lib/structuredData";
 
 export const dynamic = "force-dynamic";
@@ -27,16 +27,16 @@ export const dynamic = "force-dynamic";
 const SITE_URL = "https://tobio-suhi.vercel.app";
 
 export default async function Home() {
-  const [menuItems, locations, testimonials, rollOptions, settings] = await Promise.all([
+  const [menuItems, locations, rollOptions, settings] = await Promise.all([
     getMenuItems(),
     getLocations(),
-    getTestimonials(),
     getRollBuilderOptions(),
     getSiteSettings(),
   ]);
 
   const { item: dailyItem, isManual } = resolveDailySpecial(menuItems, settings);
   const previewItems = pickMenuPreviewItems(menuItems);
+  const googleReviews = await getGoogleReviews(locations);
   const jsonLd = buildRestaurantJsonLd(locations, SITE_URL);
 
   return (
@@ -61,7 +61,7 @@ export default async function Home() {
         <MenuPreview items={previewItems} />
         <WoltCTA settings={settings} />
         <Locations locations={locations} settings={settings} />
-        <Testimonials testimonials={testimonials} />
+        <GoogleReviews reviews={googleReviews} />
         <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />
       </main>
       <Footer locations={locations} />

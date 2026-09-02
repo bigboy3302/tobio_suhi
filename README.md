@@ -31,6 +31,13 @@ These aren't secret — they're just the coordinates the Nhost SDK uses to
 build service URLs, and the same two values need to go into Vercel's project
 environment variables when you deploy the frontend.
 
+For real Google reviews to appear on the site, one more (this one *is*
+secret) is needed — see "Real Google reviews" below:
+
+```
+GOOGLE_PLACES_API_KEY=...
+```
+
 The Hasura **admin secret** is a separate, actually-sensitive credential
 (found in the Nhost dashboard → Settings → Secrets → `HASURA_GRAPHQL_ADMIN_SECRET`,
 write-only — Nhost never shows a saved value back). It was only ever used
@@ -72,27 +79,81 @@ the current setup works fine — just cleaner.
 
 ## Content model (Postgres tables via Hasura/Nhost)
 
-`public` role = read-only (and only `active = true` rows on the three tables
-that have that column); `user` role (the one signed-in admin) = full CRUD.
+`public` role = read-only (and only `active = true` rows on the tables that
+have that column); `user` role (the one signed-in admin) = full CRUD.
 
 - `menu_items` — name, description, price, `price_large` (for the 8pc/16pc
-  dual pricing tobio.lv uses), size labels, category, tags, active, sort_order
-- `locations` — Sigulda & Cēsis: address, phone, hours, rating, maps link
-- `testimonials` — author, quote, rating, source
+  dual pricing tobio.lv uses), size labels, category, tags, active, sort_order,
+  and an optional photo (`image_id`/`image_alt`, uploaded via Nhost Storage —
+  see below)
+- `locations` — Sigulda & Cēsis: address, phone, hours, rating, Maps link,
+  Google `google_place_id` (for real reviews — see below), optional photo
 - `roll_builder_options` — rice/protein/extra options for the "Uztaisi savu
   roll'u" builder, using only ingredient names that actually appear on the
   real menu (pricing for this feature is illustrative — Tobio doesn't
   actually sell build-your-own à la carte, see conversation)
-- `site_settings` — single row: hero copy, roll-builder base price, Google
-  reviews link, both Wolt ordering links, and an optional manual override
-  for the daily pick (`daily_special_manual_id`, FK to `menu_items`) — if
-  unset, the site falls back to a day-of-week rotation through the menu
-  (`src/lib/data.ts` → `resolveDailySpecial`)
+- `site_settings` — single row: roll-builder base price, Google reviews link,
+  both Wolt ordering links, an optional hero background photo, and an
+  optional manual override for the daily pick (`daily_special_manual_id`, FK
+  to `menu_items`) — if unset, the site falls back to a day-of-week rotation
+  through the menu (`src/lib/data.ts` → `resolveDailySpecial`)
+- `site_copy` — every section heading, card, and body paragraph across the
+  site as `{key, lv, en}` rows, edited from `/admin`'s **Saturs** tab (see
+  `src/lib/i18n.tsx` for how a row here overrides the static dictionary
+  default, per language)
+- `testimonials` — **no longer rendered on the site** (see "Real Google
+  reviews" below). The table and its admin CRUD (`/admin` → Atsauksmes) still
+  exist but are inert; a banner in that tab says so.
+
+Images are stored in Nhost's built-in Storage service (same project, same
+credentials — no separate S3/Blob setup), uploaded via the admin panel's
+image fields and served publicly through `src/lib/nhostStorage.ts`.
 
 Schema + permissions were created via direct SQL/Hasura metadata calls
 during setup (see conversation for the exact statements) rather than a
 committed migrations folder — Nhost's own config-as-code (`nhost.toml` +
 dashboard) is the source of truth for this project's schema going forward.
+
+## Real Google reviews
+
+The Reviews section pulls live reviews directly from each location's Google
+Business listing via the Google Places API — not hand-typed quotes. Getting
+this working needs two things only the account owner can provide:
+
+1. **An API key.** In the [Google Cloud
+   Console](https://console.cloud.google.com/), create a project (or use an
+   existing one), enable billing on it (Google requires a billing account
+   attached even though there's a monthly free quota), enable the **Places
+   API** (the classic one — not "Places API (New)"), then create an API key
+   under APIs & Services → Credentials. Restrict the key to the Places API
+   only. It's used server-side only (`GOOGLE_PLACES_API_KEY`, no
+   `NEXT_PUBLIC_` prefix), so it's never sent to the browser.
+2. **A Place ID per location.** This is a different identifier than the
+   `cid=` value in the Google Maps links already stored in Settings — the
+   Places API needs its own Place ID, findable with Google's [Place ID
+   Finder](https://developers.google.com/maps/documentation/places/web-service/place-id)
+   (search the business name/address on the embedded map there). Paste each
+   one into `/admin` → Atrašanās vietas → "Google Place ID (atsauksmēm)" for
+   the matching location.
+
+Once both are in place (the key as an env var — locally in `.env.local`,
+in production in Vercel's project settings, redeploy after adding it — and
+a Place ID on each location), reviews start showing up automatically; no
+code change needed.
+
+Until then, the Reviews section simply doesn't render (see
+`src/lib/googleReviews.ts` — any missing config or failed request returns an
+empty list, on purpose, rather than ever showing placeholder text). The
+aggregate "X out of 5 — N+ Google reviews" banner lower on the page is
+unaffected either way — it's driven by the rating/count already stored on
+each location, not by this API call.
+
+Reviews are fetched with a 24-hour cache (`next: { revalidate: 86400 }` in
+`getGoogleReviews`) rather than on every page load, both to keep content
+reasonably fresh and to stay well within/near the free monthly quota — the
+Places API bills per request past that allotment. Google's Place Details
+`reviews` field returns at most 5 reviews per place, in whatever
+order/selection Google provides; there's no way to curate which ones show.
 
 ## Deploying for real
 

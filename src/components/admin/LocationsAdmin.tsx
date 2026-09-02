@@ -8,7 +8,7 @@ import ImageUploadField from "./ImageUploadField";
 
 const FIELDS = `
   id name city address phone hours_weekdays hours_weekend rating reviews_count google_maps_url sort_order
-  image_id image_alt
+  google_place_id image_id image_alt
 `;
 
 export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
@@ -71,6 +71,7 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
             rating: Number(loc.rating),
             reviews_count: Number(loc.reviews_count),
             google_maps_url: loc.google_maps_url,
+            google_place_id: loc.google_place_id || null,
             image_id: loc.image_id,
             image_alt: loc.image_id ? loc.image_alt || null : null,
           },
@@ -169,6 +170,18 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
                 onChange={(e) => update(loc.id, { google_maps_url: e.target.value })}
                 className="admin-input"
               />
+            </Field>
+            <Field label="Google Place ID (atsauksmēm)">
+              <input
+                value={loc.google_place_id ?? ""}
+                onChange={(e) => update(loc.id, { google_place_id: e.target.value || null })}
+                placeholder="ChIJ..."
+                className="admin-input"
+              />
+              <p className="mt-1 text-xs text-ink-soft">
+                Atrodams ar Google&apos;s Place ID Finder rīku. Šis nav tas pats, kas Maps saite
+                augšā — bez tā vietne nevar ievilkt reālās Google atsauksmes.
+              </p>
             </Field>
 
             <ImageUploadField

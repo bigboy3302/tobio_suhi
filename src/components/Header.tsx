@@ -8,11 +8,11 @@ import { useLanguage } from "@/lib/i18n";
 import LanguageToggle from "./LanguageToggle";
 
 const NAV_LINKS = [
-  { href: "#izveletie", key: "nav.daily" },
-  { href: "#ediena-karte", key: "nav.menu" },
-  { href: "#roll-builder", key: "nav.builder" },
-  { href: "#atrasanas-vietas", key: "nav.locations" },
-  { href: "#atsauksmes", key: "nav.reviews" },
+  { href: "/#izveletie", key: "nav.daily" },
+  { href: "/menu", key: "nav.menu" },
+  { href: "/#roll-builder", key: "nav.builder" },
+  { href: "/#atrasanas-vietas", key: "nav.locations" },
+  { href: "/#atsauksmes", key: "nav.reviews" },
 ] as const;
 
 export default function Header({ locations }: { locations: Location[] }) {
@@ -22,7 +22,7 @@ export default function Header({ locations }: { locations: Location[] }) {
   return (
     <header className="sticky top-0 z-50 border-b border-leaf/20 bg-jungle/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
-        <a href="#top" className="flex items-center gap-2.5">
+        <a href="/" className="flex items-center gap-2.5">
           <Image
             src="/tobio-logo.png"
             alt="Tobio Sushi"
