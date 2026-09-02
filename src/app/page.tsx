@@ -4,7 +4,7 @@ import GoogleReviewsCTA from "@/components/GoogleReviewsCTA";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Locations from "@/components/Locations";
-import MenuGrid from "@/components/MenuGrid";
+import MenuPreview from "@/components/MenuPreview";
 import MobileOrderBar from "@/components/MobileOrderBar";
 import RollBuilder from "@/components/RollBuilder";
 import Story from "@/components/Story";
@@ -17,6 +17,7 @@ import {
   getRollBuilderOptions,
   getSiteSettings,
   getTestimonials,
+  pickMenuPreviewItems,
   resolveDailySpecial,
 } from "@/lib/data";
 import { buildRestaurantJsonLd } from "@/lib/structuredData";
@@ -35,6 +36,7 @@ export default async function Home() {
   ]);
 
   const { item: dailyItem, isManual } = resolveDailySpecial(menuItems, settings);
+  const previewItems = pickMenuPreviewItems(menuItems);
   const jsonLd = buildRestaurantJsonLd(locations, SITE_URL);
 
   return (
@@ -56,7 +58,7 @@ export default async function Home() {
           basePrice={settings?.roll_builder_base_price ?? 4.9}
           locations={locations}
         />
-        <MenuGrid items={menuItems} linkToFullMenu />
+        <MenuPreview items={previewItems} />
         <WoltCTA settings={settings} />
         <Locations locations={locations} settings={settings} />
         <Testimonials testimonials={testimonials} />

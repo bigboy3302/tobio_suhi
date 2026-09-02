@@ -139,3 +139,45 @@ export function resolveDailySpecial(
   const item = pool[dayOfWeek % pool.length];
   return { item, isManual: false };
 }
+
+/**
+ * Curated handful of dishes for the homepage menu preview (the full 63-item
+ * list lives on /menu). Prefers items tagged "populars"/"chef_special"; if
+ * there aren't enough of those yet, fills the remaining slots by rotating
+ * through categories so the preview still spans a few different kinds of
+ * dish instead of just the first N rows of one category.
+ */
+export function pickMenuPreviewItems(menuItems: MenuItem[], target = 8): MenuItem[] {
+  const dishes = menuItems.filter(
+    (item) => item.category !== "merces" && item.category !== "dzerieni"
+  );
+
+  const curated = dishes.filter(
+    (item) => item.tags?.includes("populars") || item.tags?.includes("chef_special")
+  );
+  if (curated.length >= target) return curated.slice(0, target);
+
+  const selected = [...curated];
+  const selectedIds = new Set(selected.map((i) => i.id));
+
+  const byCategory = new Map<string, MenuItem[]>();
+  for (const item of dishes) {
+    if (selectedIds.has(item.id)) continue;
+    const list = byCategory.get(item.category) ?? [];
+    list.push(item);
+    byCategory.set(item.category, list);
+  }
+
+  const categories = Array.from(byCategory.keys());
+  let i = 0;
+  while (selected.length < target && categories.some((c) => (byCategory.get(c)?.length ?? 0) > 0)) {
+    const cat = categories[i % categories.length];
+    const list = byCategory.get(cat);
+    if (list && list.length > 0) {
+      selected.push(list.shift()!);
+    }
+    i++;
+  }
+
+  return selected.slice(0, target);
+}
