@@ -3,9 +3,16 @@
 import { HandPlatter, Leaf, MapPin, PartyPopper, Sparkles, Star } from "lucide-react";
 import type { Location } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 export default function WhyUs({ locations }: { locations: Location[] }) {
   const { t } = useLanguage();
+  const fresh = useScrollReveal<HTMLDivElement>(0);
+  const ratingCard = useScrollReveal<HTMLDivElement>(100);
+  const locationsCard = useScrollReveal<HTMLDivElement>(200);
+  const sets = useScrollReveal<HTMLDivElement>(300);
+  const chef = useScrollReveal<HTMLDivElement>(400);
+  const builderPromo = useScrollReveal<HTMLDivElement>(500);
   const avgRating =
     locations.length > 0
       ? locations.reduce((sum, l) => sum + (l.rating || 0), 0) / locations.length
@@ -24,13 +31,21 @@ export default function WhyUs({ locations }: { locations: Location[] }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:grid-rows-2">
-        <div className="col-span-2 row-span-1 rounded-3xl bg-ink p-6 text-cream md:row-span-2">
+        <div
+          ref={fresh.ref}
+          style={fresh.style}
+          className={`col-span-2 row-span-1 rounded-3xl bg-ink p-6 text-cream md:row-span-2 ${fresh.className}`}
+        >
           <Leaf className="h-8 w-8 text-matcha" />
           <h3 className="mt-4 font-display text-xl font-semibold">{t("why.freshTitle")}</h3>
           <p className="mt-2 text-sm text-cream/70">{t("why.freshBody")}</p>
         </div>
 
-        <div className="rounded-3xl bg-coral p-6 text-ink">
+        <div
+          ref={ratingCard.ref}
+          style={ratingCard.style}
+          className={`rounded-3xl bg-coral p-6 text-ink ${ratingCard.className}`}
+        >
           <Star className="h-7 w-7" />
           <p className="mt-3 font-display text-2xl font-bold">
             {avgRating ? avgRating.toFixed(1) : "4.8"}
@@ -40,25 +55,41 @@ export default function WhyUs({ locations }: { locations: Location[] }) {
           </p>
         </div>
 
-        <div className="rounded-3xl bg-cream-soft p-6">
+        <div
+          ref={locationsCard.ref}
+          style={locationsCard.style}
+          className={`rounded-3xl bg-cream-soft p-6 ${locationsCard.className}`}
+        >
           <MapPin className="h-7 w-7 text-ink" />
           <p className="mt-3 font-display text-2xl font-bold text-ink">{locations.length || 2}</p>
           <p className="mt-0.5 text-xs text-ink-soft">{t("why.locationsLabel")}</p>
         </div>
 
-        <div className="rounded-3xl bg-matcha p-6 text-ink">
+        <div
+          ref={sets.ref}
+          style={sets.style}
+          className={`rounded-3xl bg-matcha p-6 text-ink ${sets.className}`}
+        >
           <PartyPopper className="h-7 w-7" />
           <h3 className="mt-3 font-display text-lg font-semibold">{t("why.setsTitle")}</h3>
           <p className="mt-1 text-xs text-ink/80">{t("why.setsBody")}</p>
         </div>
 
-        <div className="rounded-3xl bg-gold p-6 text-ink">
+        <div
+          ref={chef.ref}
+          style={chef.style}
+          className={`rounded-3xl bg-gold p-6 text-ink ${chef.className}`}
+        >
           <HandPlatter className="h-7 w-7" />
           <h3 className="mt-3 font-display text-lg font-semibold">{t("why.chefTitle")}</h3>
           <p className="mt-1 text-xs text-ink/75">{t("why.chefBody")}</p>
         </div>
 
-        <div className="col-span-2 rounded-3xl bg-cream-soft p-6 md:col-span-4">
+        <div
+          ref={builderPromo.ref}
+          style={builderPromo.style}
+          className={`col-span-2 rounded-3xl bg-cream-soft p-6 md:col-span-4 ${builderPromo.className}`}
+        >
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Sparkles className="h-7 w-7 text-coral-dark" />

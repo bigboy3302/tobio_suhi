@@ -1,13 +1,8 @@
+import { parseHours } from "./hours";
 import type { Location } from "./types";
 
 const WEEKDAY_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const WEEKEND_DAYS = ["Saturday", "Sunday"];
-
-function parseHours(range: string): { opens: string; closes: string } | null {
-  const match = range.match(/(\d{1,2}[:.]\d{2})\s*[-–]\s*(\d{1,2}[:.]\d{2})/);
-  if (!match) return null;
-  return { opens: match[1].replace(".", ":"), closes: match[2].replace(".", ":") };
-}
 
 export function buildRestaurantJsonLd(locations: Location[], siteUrl: string) {
   const restaurants = locations.map((loc) => {

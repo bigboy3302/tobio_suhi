@@ -5,6 +5,7 @@ import { Flame, Leaf, Sparkles, WheatOff } from "lucide-react";
 import type { MenuItem, MenuTag } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 import { nhostFileUrl } from "@/lib/nhostStorage";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const TAG_ICONS: Partial<Record<MenuTag, React.ComponentType<{ className?: string }>>> = {
   piktants: Flame,
@@ -13,11 +14,29 @@ const TAG_ICONS: Partial<Record<MenuTag, React.ComponentType<{ className?: strin
   jauns: Sparkles,
 };
 
-export default function MenuItemCard({ item }: { item: MenuItem }) {
+export default function MenuItemCard({
+  item,
+  revealDelay,
+}: {
+  item: MenuItem;
+  /**
+   * Enables the scroll-reveal fade-up for this card, staggered by this delay
+   * (ms). Omit entirely on the /menu page's full grid — with 60+ items a
+   * reveal effect there would feel sluggish, and leaving this unset skips
+   * the IntersectionObserver setup completely rather than just hiding the
+   * animation, so there's no overhead either.
+   */
+  revealDelay?: number;
+}) {
   const { t } = useLanguage();
+  const reveal = useScrollReveal<HTMLElement>(revealDelay ?? 0, { enabled: revealDelay != null });
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-cream-soft transition-shadow hover:shadow-md">
+    <article
+      ref={reveal.ref}
+      style={reveal.style}
+      className={`flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-cream-soft transition-shadow hover:shadow-md ${reveal.className}`}
+    >
       {item.image_id && (
         <div className="relative aspect-[4/3] w-full flex-none">
           <Image

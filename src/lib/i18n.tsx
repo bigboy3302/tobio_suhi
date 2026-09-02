@@ -107,6 +107,8 @@ const STRINGS: Record<string, Record<Lang, string>> = {
 
   "locations.eyebrow": { lv: "Atrašanās vietas", en: "Locations" },
   "locations.heading": { lv: "Divas vietas, viena kvalitāte", en: "Two locations, one standard" },
+  "locations.openNow": { lv: "Tagad atvērts", en: "Open now" },
+  "locations.closedNow": { lv: "Tagad slēgts", en: "Closed now" },
   "locations.reviewsCount": { lv: "{n}+ Google atsauksmes", en: "{n}+ Google reviews" },
   "locations.directions": { lv: "Maršruts", en: "Directions" },
   "locations.orderWolt": { lv: "Pasūtīt Wolt", en: "Order on Wolt" },

@@ -1,13 +1,19 @@
 "use client";
 
 import { useLanguage } from "@/lib/i18n";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 export default function Story() {
   const { t } = useLanguage();
+  const reveal = useScrollReveal<HTMLDivElement>();
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="rounded-3xl bg-jungle px-6 py-12 text-center sm:px-12">
+      <div
+        ref={reveal.ref}
+        style={reveal.style}
+        className={`rounded-3xl bg-jungle px-6 py-12 text-center sm:px-12 ${reveal.className}`}
+      >
         <p className="text-xs font-semibold uppercase tracking-wide text-leaf">
           {t("story.eyebrow")}
         </p>

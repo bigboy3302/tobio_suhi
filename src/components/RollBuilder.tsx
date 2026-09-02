@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, Phone, ShoppingBag } from "lucide-react";
 import type { Location, RollBuilderOption } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 export default function RollBuilder({
   options,
@@ -15,6 +16,7 @@ export default function RollBuilder({
   locations: Location[];
 }) {
   const { t } = useLanguage();
+  const reveal = useScrollReveal<HTMLElement>();
   const rice = options.filter((o) => o.category === "rice");
   const protein = options.filter((o) => o.category === "protein");
   const extra = options.filter((o) => o.category === "extra");
@@ -41,7 +43,12 @@ export default function RollBuilder({
   const primaryLocation = locations[0];
 
   return (
-    <section id="roll-builder" className="bg-ink py-20 text-cream">
+    <section
+      id="roll-builder"
+      ref={reveal.ref}
+      style={reveal.style}
+      className={`bg-ink py-20 text-cream ${reveal.className}`}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-xl">
           <p className="text-xs font-semibold uppercase tracking-wide text-coral">

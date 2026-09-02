@@ -30,8 +30,8 @@ export default function MenuPreview({ items }: { items: MenuItem[] }) {
       <p className="mb-6 max-w-2xl text-xs text-ink-soft/80">{t("menu.allergenNote")}</p>
 
       <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
-          <MenuItemCard key={item.id} item={item} />
+        {items.map((item, i) => (
+          <MenuItemCard key={item.id} item={item} revealDelay={i * 100} />
         ))}
       </div>
     </section>
