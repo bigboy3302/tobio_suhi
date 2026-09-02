@@ -2,13 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Flame, Leaf, Sparkles, WheatOff } from "lucide-react";
-import {
-  CATEGORY_LABELS,
-  TAG_LABELS,
-  type MenuCategory,
-  type MenuItem,
-  type MenuTag,
-} from "@/lib/types";
+import { type MenuCategory, type MenuItem, type MenuTag } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 const TAG_ICONS: Partial<Record<MenuTag, React.ComponentType<{ className?: string }>>> = {
   piktants: Flame,
@@ -17,7 +12,14 @@ const TAG_ICONS: Partial<Record<MenuTag, React.ComponentType<{ className?: strin
   jauns: Sparkles,
 };
 
-export default function MenuGrid({ items }: { items: MenuItem[] }) {
+export default function MenuGrid({
+  items,
+  linkToFullMenu,
+}: {
+  items: MenuItem[];
+  linkToFullMenu?: boolean;
+}) {
+  const { t } = useLanguage();
   const categories = useMemo(() => {
     const seen = new Set<MenuCategory>();
     items.forEach((i) => seen.add(i.category));
@@ -35,25 +37,37 @@ export default function MenuGrid({ items }: { items: MenuItem[] }) {
 
   return (
     <section id="ediena-karte" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mb-8 max-w-xl">
-        <p className="text-xs font-semibold uppercase tracking-wide text-coral-dark">
-          Ēdienkarte
-        </p>
-        <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          Izvēlies savu favorītu
-        </h2>
+      <div className="mb-8 flex max-w-3xl flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-coral-dark">
+            {t("menu.eyebrow")}
+          </p>
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            {t("menu.heading")}
+          </h2>
+        </div>
+        {linkToFullMenu && (
+          <a
+            href="/menu"
+            className="whitespace-nowrap text-sm font-semibold text-coral-dark underline-offset-4 hover:underline"
+          >
+            {t("menu.fullMenuLink")}
+          </a>
+        )}
       </div>
+
+      <p className="mb-6 max-w-2xl text-xs text-ink-soft/80">{t("menu.allergenNote")}</p>
 
       <div className="mb-8 flex flex-wrap gap-2">
         <FilterButton
-          label="Visi"
+          label={t("menu.all")}
           active={activeCategory === "all"}
           onClick={() => setActiveCategory("all")}
         />
         {categories.map((cat) => (
           <FilterButton
             key={cat}
-            label={CATEGORY_LABELS[cat]}
+            label={t(`category.${cat}`)}
             active={activeCategory === cat}
             onClick={() => setActiveCategory(cat)}
           />
@@ -83,7 +97,7 @@ export default function MenuGrid({ items }: { items: MenuItem[] }) {
                       className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-medium text-ink-soft"
                     >
                       {Icon && <Icon className="h-3 w-3" />}
-                      {TAG_LABELS[tag]}
+                      {t(`tag.${tag}`)}
                     </span>
                   );
                 })}

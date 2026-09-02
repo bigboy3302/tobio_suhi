@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowRight, Phone } from "lucide-react";
 import type { Location, MenuItem, SiteSettings } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Hero({
   settings,
@@ -11,6 +14,7 @@ export default function Hero({
   menuItems: MenuItem[];
   locations: Location[];
 }) {
+  const { t } = useLanguage();
   const headline = settings?.hero_headline || "Svaigi suši. Gatavots ar sirdi.";
   const subtext =
     settings?.hero_subtext ||
@@ -65,7 +69,7 @@ export default function Hero({
             href="#ediena-karte"
             className="inline-flex items-center gap-2 rounded-full bg-leaf px-6 py-3.5 text-sm font-semibold text-jungle shadow-lg shadow-leaf/30 transition-transform hover:-translate-y-0.5"
           >
-            Skatīt ēdienkarti
+            {t("hero.ctaMenu")}
             <ArrowRight className="h-4 w-4" />
           </a>
           {primaryLocation && (
@@ -74,7 +78,7 @@ export default function Hero({
               className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:border-leaf hover:text-leaf"
             >
               <Phone className="h-4 w-4" />
-              Piezvanīt un pasūtīt
+              {t("hero.ctaCall")}
             </a>
           )}
         </div>
@@ -82,16 +86,12 @@ export default function Hero({
         <div className="mt-10 flex items-center gap-5 border-t border-white/10 pt-6">
           <p className="flex items-baseline gap-2">
             <span className="font-display text-3xl text-leaf">{menuItems.length}+</span>
-            <span className="text-xs text-white/55">ēdienkartes
-              <br />pozīcijas
-            </span>
+            <span className="text-xs text-white/55">{t("hero.statItems")}</span>
           </p>
           <span className="h-9 w-px bg-white/15" />
           <p className="flex items-baseline gap-2">
             <span className="font-display text-3xl text-leaf">{locations.length}</span>
-            <span className="text-xs text-white/55">pilsētas
-              <br />Latvijā
-            </span>
+            <span className="text-xs text-white/55">{t("hero.statCities")}</span>
           </p>
         </div>
       </div>

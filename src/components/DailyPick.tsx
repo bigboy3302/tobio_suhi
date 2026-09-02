@@ -1,28 +1,32 @@
+"use client";
+
 import { ChefHat, Sparkles } from "lucide-react";
 import type { MenuItem } from "@/lib/types";
+import { DAY_NAMES, useLanguage } from "@/lib/i18n";
 
 export default function DailyPick({
   item,
   isManual,
-  dayName,
 }: {
   item: MenuItem | null;
   isManual: boolean;
-  dayName: string;
 }) {
+  const { lang, t } = useLanguage();
   if (!item) return null;
+
+  const dayName = DAY_NAMES[lang][new Date().getDay()];
 
   return (
     <section id="izveletie" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col items-start gap-6 rounded-3xl border-2 border-ink bg-cream-soft p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-coral text-cream">
+          <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-coral text-ink">
             <ChefHat className="h-6 w-6" />
           </div>
           <div>
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-coral-dark">
               <Sparkles className="h-3.5 w-3.5" />
-              Šodienas ieteikums &middot; {isManual ? "Šefpavāra izvēle" : dayName}
+              {t("daily.eyebrow")} &middot; {isManual ? t("daily.chefSpecial") : dayName}
             </p>
             <h3 className="mt-1.5 font-display text-2xl font-bold text-ink">{item.name}</h3>
             <p className="mt-1 max-w-xl text-sm text-ink-soft">{item.description}</p>
@@ -36,7 +40,7 @@ export default function DailyPick({
             href="#ediena-karte"
             className="whitespace-nowrap rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream transition-transform hover:-translate-y-0.5"
           >
-            Skatīt ēdienkartē
+            {t("daily.cta")}
           </a>
         </div>
       </div>

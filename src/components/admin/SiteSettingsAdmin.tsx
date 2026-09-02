@@ -165,7 +165,7 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
         <button
           type="submit"
           disabled={saving}
-          className="mt-5 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-cream disabled:opacity-60"
+          className="mt-5 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink disabled:opacity-60"
         >
           {saving ? "Saglabā..." : "Saglabāt"}
         </button>

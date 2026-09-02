@@ -1,7 +1,11 @@
+"use client";
+
 import { Star } from "lucide-react";
 import type { Testimonial } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
+  const { t } = useLanguage();
   if (testimonials.length === 0) return null;
 
   return (
@@ -9,10 +13,10 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-xl">
           <p className="text-xs font-semibold uppercase tracking-wide text-coral-dark">
-            Atsauksmes
+            {t("testimonials.eyebrow")}
           </p>
           <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            Ko saka mūsu viesi
+            {t("testimonials.heading")}
           </h2>
         </div>
 

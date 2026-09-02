@@ -4,17 +4,20 @@ import { useState } from "react";
 import Image from "next/image";
 import { Menu, Phone, X } from "lucide-react";
 import type { Location } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
+import LanguageToggle from "./LanguageToggle";
 
 const NAV_LINKS = [
-  { href: "#izveletie", label: "Šodienas ieteikums" },
-  { href: "#ediena-karte", label: "Ēdienkarte" },
-  { href: "#roll-builder", label: "Uztaisi savu roll'u" },
-  { href: "#atrasanas-vietas", label: "Atrašanās vietas" },
-  { href: "#atsauksmes", label: "Atsauksmes" },
-];
+  { href: "#izveletie", key: "nav.daily" },
+  { href: "#ediena-karte", key: "nav.menu" },
+  { href: "#roll-builder", key: "nav.builder" },
+  { href: "#atrasanas-vietas", key: "nav.locations" },
+  { href: "#atsauksmes", key: "nav.reviews" },
+] as const;
 
 export default function Header({ locations }: { locations: Location[] }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 border-b border-leaf/20 bg-jungle/95 backdrop-blur">
@@ -38,12 +41,13 @@ export default function Header({ locations }: { locations: Location[] }) {
               href={link.href}
               className="text-sm font-medium text-white/75 transition-colors hover:text-leaf"
             >
-              {link.label}
+              {t(link.key)}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
+          <LanguageToggle />
           {locations.map((loc) => (
             <a
               key={loc.id}
@@ -60,7 +64,7 @@ export default function Header({ locations }: { locations: Location[] }) {
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="inline-flex items-center justify-center rounded-full border border-white/20 p-2 text-white lg:hidden"
-          aria-label="Izvērst izvēlni"
+          aria-label={t("nav.expand")}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -77,11 +81,14 @@ export default function Header({ locations }: { locations: Location[] }) {
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-2 py-2.5 text-sm font-medium text-white/75 hover:bg-white/5 hover:text-leaf"
               >
-                {link.label}
+                {t(link.key)}
               </a>
             ))}
           </nav>
-          <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-3">
+          <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+            <LanguageToggle />
+          </div>
+          <div className="mt-3 flex flex-col gap-2">
             {locations.map((loc) => (
               <a
                 key={loc.id}
@@ -89,7 +96,7 @@ export default function Header({ locations }: { locations: Location[] }) {
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-leaf px-4 py-2.5 text-sm font-semibold text-jungle"
               >
                 <Phone className="h-4 w-4" strokeWidth={2.5} />
-                Zvanīt uz {loc.city}
+                {t("nav.callCity", { city: loc.city })}
               </a>
             ))}
           </div>

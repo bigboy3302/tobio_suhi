@@ -200,7 +200,7 @@ export default function TestimonialsAdmin({ nhost }: { nhost: NhostClient }) {
             Aktīva (redzama vietnē)
           </label>
           <div className="mt-5 flex gap-2">
-            <button type="submit" className="rounded-full bg-coral px-5 py-2 text-sm font-semibold text-cream">
+            <button type="submit" className="rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink">
               Saglabāt
             </button>
             <button

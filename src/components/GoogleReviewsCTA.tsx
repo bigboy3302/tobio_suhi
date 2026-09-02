@@ -1,5 +1,8 @@
+"use client";
+
 import { Star } from "lucide-react";
 import type { Location } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function GoogleReviewsCTA({
   locations,
@@ -8,6 +11,7 @@ export default function GoogleReviewsCTA({
   locations: Location[];
   reviewsUrl: string;
 }) {
+  const { t } = useLanguage();
   const totalReviews = locations.reduce((sum, l) => sum + (l.reviews_count || 0), 0);
   const avgRating =
     locations.length > 0
@@ -23,18 +27,17 @@ export default function GoogleReviewsCTA({
           ))}
         </div>
         <p className="font-display text-2xl font-bold sm:text-3xl">
-          {avgRating.toFixed(1)} no 5 &mdash; {totalReviews}+ Google atsauksmes
+          {avgRating.toFixed(1)} {t("googleReviews.outOf5")} &mdash;{" "}
+          {t("googleReviews.count", { n: totalReviews })}
         </p>
-        <p className="max-w-md text-sm text-cream/70">
-          Pievienojies simtiem apmierinātu viesu Siguldā un Cēsīs. Dalies ar savu pieredzi!
-        </p>
+        <p className="max-w-md text-sm text-cream/70">{t("googleReviews.body")}</p>
         <a
           href={reviewsUrl || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex items-center gap-2 rounded-full bg-coral px-6 py-3.5 text-sm font-semibold text-cream transition-transform hover:-translate-y-0.5"
+          className="mt-1 inline-flex items-center gap-2 rounded-full bg-coral px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
         >
-          Skatīt Google atsauksmes
+          {t("googleReviews.cta")}
         </a>
       </div>
     </section>

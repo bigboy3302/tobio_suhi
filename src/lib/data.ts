@@ -116,13 +116,3 @@ export function resolveDailySpecial(
   const item = pool[dayOfWeek % pool.length];
   return { item, isManual: false };
 }
-
-export const DAY_NAMES_LV = [
-  "Svētdienai",
-  "Pirmdienai",
-  "Otrdienai",
-  "Trešdienai",
-  "Ceturtdienai",
-  "Piektdienai",
-  "Sestdienai",
-];

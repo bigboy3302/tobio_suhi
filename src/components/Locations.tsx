@@ -1,17 +1,32 @@
-import { Clock, MapPin, Phone, Star } from "lucide-react";
-import type { Location } from "@/lib/types";
+"use client";
 
-export default function Locations({ locations }: { locations: Location[] }) {
+import { Clock, MapPin, Phone, Send, Star } from "lucide-react";
+import type { Location, SiteSettings } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
+
+export default function Locations({
+  locations,
+  settings,
+}: {
+  locations: Location[];
+  settings: SiteSettings | null;
+}) {
+  const { t } = useLanguage();
   if (locations.length === 0) return null;
+
+  const woltUrlByCity: Record<string, string | undefined> = {
+    Sigulda: settings?.wolt_url_sigulda,
+    Cēsis: settings?.wolt_url_cesis,
+  };
 
   return (
     <section id="atrasanas-vietas" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="mb-10 max-w-xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-coral-dark">
-          Atrašanās vietas
+          {t("locations.eyebrow")}
         </p>
         <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          Divas vietas, viena kvalitāte
+          {t("locations.heading")}
         </h2>
       </div>
 
@@ -46,7 +61,7 @@ export default function Locations({ locations }: { locations: Location[] }) {
               )}
               {loc.reviews_count > 0 && (
                 <p className="pl-6 text-xs text-ink-soft/80">
-                  {loc.reviews_count}+ Google atsauksmes
+                  {t("locations.reviewsCount", { n: loc.reviews_count })}
                 </p>
               )}
             </div>
@@ -66,7 +81,18 @@ export default function Locations({ locations }: { locations: Location[] }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border-2 border-ink px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-ink hover:text-cream"
                 >
-                  Maršruts
+                  {t("locations.directions")}
+                </a>
+              )}
+              {woltUrlByCity[loc.city] && (
+                <a
+                  href={woltUrlByCity[loc.city]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-matcha px-5 py-2.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
+                >
+                  <Send className="h-4 w-4" />
+                  {t("locations.orderWolt")}
                 </a>
               )}
             </div>

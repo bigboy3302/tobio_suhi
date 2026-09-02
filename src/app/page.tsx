@@ -7,11 +7,11 @@ import Locations from "@/components/Locations";
 import MenuGrid from "@/components/MenuGrid";
 import MobileOrderBar from "@/components/MobileOrderBar";
 import RollBuilder from "@/components/RollBuilder";
+import Story from "@/components/Story";
 import Testimonials from "@/components/Testimonials";
 import WhyUs from "@/components/WhyUs";
 import WoltCTA from "@/components/WoltCTA";
 import {
-  DAY_NAMES_LV,
   getLocations,
   getMenuItems,
   getRollBuilderOptions,
@@ -19,8 +19,11 @@ import {
   getTestimonials,
   resolveDailySpecial,
 } from "@/lib/data";
+import { buildRestaurantJsonLd } from "@/lib/structuredData";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = "https://tobio-suhi.vercel.app";
 
 export default async function Home() {
   const [menuItems, locations, testimonials, rollOptions, settings] = await Promise.all([
@@ -32,21 +35,30 @@ export default async function Home() {
   ]);
 
   const { item: dailyItem, isManual } = resolveDailySpecial(menuItems, settings);
-  const dayName = DAY_NAMES_LV[new Date().getDay()];
+  const jsonLd = buildRestaurantJsonLd(locations, SITE_URL);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header locations={locations} />
       <main className="flex-1">
         <Hero settings={settings} menuItems={menuItems} locations={locations} />
         <div className="mt-4">
-          <DailyPick item={dailyItem} isManual={isManual} dayName={dayName} />
+          <DailyPick item={dailyItem} isManual={isManual} />
         </div>
         <WhyUs locations={locations} />
-        <RollBuilder options={rollOptions} basePrice={settings?.roll_builder_base_price ?? 4.9} />
-        <MenuGrid items={menuItems} />
+        <Story />
+        <RollBuilder
+          options={rollOptions}
+          basePrice={settings?.roll_builder_base_price ?? 4.9}
+          locations={locations}
+        />
+        <MenuGrid items={menuItems} linkToFullMenu />
         <WoltCTA settings={settings} />
-        <Locations locations={locations} />
+        <Locations locations={locations} settings={settings} />
         <Testimonials testimonials={testimonials} />
         <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />
       </main>

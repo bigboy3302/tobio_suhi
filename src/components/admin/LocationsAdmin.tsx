@@ -160,7 +160,7 @@ export default function LocationsAdmin({ nhost }: { nhost: NhostClient }) {
               type="button"
               onClick={() => handleSave(loc)}
               disabled={saving === loc.id}
-              className="mt-4 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-cream disabled:opacity-60"
+              className="mt-4 rounded-full bg-coral px-5 py-2 text-sm font-semibold text-ink disabled:opacity-60"
             >
               {saving === loc.id ? "Saglabā..." : "Saglabāt"}
             </button>

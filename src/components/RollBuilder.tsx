@@ -1,22 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ShoppingBag } from "lucide-react";
-import type { RollBuilderOption } from "@/lib/types";
-
-const CATEGORY_TITLES: Record<string, string> = {
-  rice: "1. Izvēlies rīsus",
-  protein: "2. Izvēlies olbaltumvielu",
-  extra: "3. Pievieno piedevas",
-};
+import { Check, Phone, ShoppingBag } from "lucide-react";
+import type { Location, RollBuilderOption } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 export default function RollBuilder({
   options,
   basePrice,
+  locations,
 }: {
   options: RollBuilderOption[];
   basePrice: number;
+  locations: Location[];
 }) {
+  const { t } = useLanguage();
   const rice = options.filter((o) => o.category === "rice");
   const protein = options.filter((o) => o.category === "protein");
   const extra = options.filter((o) => o.category === "extra");
@@ -40,36 +38,36 @@ export default function RollBuilder({
 
   if (rice.length === 0 && protein.length === 0) return null;
 
+  const primaryLocation = locations[0];
+
   return (
     <section id="roll-builder" className="bg-ink py-20 text-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-xl">
           <p className="text-xs font-semibold uppercase tracking-wide text-coral">
-            Interaktīvi
+            {t("builder.eyebrow")}
           </p>
           <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            Uztaisi savu roll&apos;u
+            {t("builder.heading")}
           </h2>
-          <p className="mt-2 text-sm text-cream/70">
-            Izvēlies katru sastāvdaļu un vēro, kā cena mainās reāllaikā.
-          </p>
+          <p className="mt-2 text-sm text-cream/70">{t("builder.subtext")}</p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-start">
           <OptionGroup
-            title={CATEGORY_TITLES.rice}
+            title={t("builder.step1")}
             options={rice}
             selected={[riceId]}
             onSelect={(id) => setRiceId(id)}
           />
           <OptionGroup
-            title={CATEGORY_TITLES.protein}
+            title={t("builder.step2")}
             options={protein}
             selected={[proteinId]}
             onSelect={(id) => setProteinId(id)}
           />
           <OptionGroup
-            title={CATEGORY_TITLES.extra}
+            title={t("builder.step3")}
             options={extra}
             selected={extraIds}
             onSelect={toggleExtra}
@@ -79,17 +77,35 @@ export default function RollBuilder({
           <div className="rounded-3xl bg-cream p-6 text-ink lg:w-64">
             <div className="flex items-center gap-2 text-coral-dark">
               <ShoppingBag className="h-5 w-5" />
-              <p className="text-xs font-semibold uppercase tracking-wide">Tavs roll&apos;is</p>
+              <p className="text-xs font-semibold uppercase tracking-wide">
+                {t("builder.yourRoll")}
+              </p>
             </div>
             <p className="mt-4 font-display text-4xl font-bold">&euro;{total.toFixed(2)}</p>
             <p className="mt-1 text-xs text-ink-soft">
-              Bāzes cena &euro;{basePrice.toFixed(2)} + izvēlētās sastāvdaļas
+              {t("builder.basePrice", { base: basePrice.toFixed(2) })}
             </p>
+            {primaryLocation ? (
+              <a
+                href={`tel:${primaryLocation.phone.replace(/\s+/g, "")}`}
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
+              >
+                <Phone className="h-4 w-4" />
+                {t("builder.callToOrder")}
+              </a>
+            ) : (
+              <a
+                href="#atrasanas-vietas"
+                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
+              >
+                {t("builder.orderThis")}
+              </a>
+            )}
             <a
-              href="#atrasanas-vietas"
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-cream transition-transform hover:-translate-y-0.5"
+              href="#pasutit"
+              className="mt-2 block text-center text-xs font-medium text-ink-soft underline-offset-4 hover:underline"
             >
-              Pasūtīt šo roll&apos;u
+              {t("builder.orWolt")}
             </a>
           </div>
         </div>
@@ -111,6 +127,7 @@ function OptionGroup({
   onSelect: (id: string) => void;
   multi?: boolean;
 }) {
+  const { t } = useLanguage();
   if (options.length === 0) return null;
   return (
     <div>
@@ -141,7 +158,7 @@ function OptionGroup({
                 {opt.name}
               </span>
               <span className="whitespace-nowrap text-xs font-semibold text-cream/70">
-                {opt.price > 0 ? `+€${opt.price.toFixed(2)}` : "iekļauts"}
+                {opt.price > 0 ? `+€${opt.price.toFixed(2)}` : t("builder.included")}
               </span>
             </button>
           );
