@@ -15,8 +15,20 @@ npm run dev
 - Admin panel: http://localhost:3000/admin
 
 Admin login: `adriansraitums95@gmail.com` — password was generated at setup
-time and shared separately. There's no public sign-up; only that one account
-can log in and edit content.
+time and shared separately. There's no public sign-up, and no "admins"
+table in the database — access is entirely Nhost Auth's own users list
+(anyone with a valid login gets the same full edit access, since Hasura's
+permissions are keyed on the `user` role, not a specific email). To add,
+remove, or reset an admin login, use the Nhost dashboard → Auth → Users —
+no code or database change needed.
+
+Idle admin sessions sign out automatically after 30 minutes of no activity
+(mouse/keyboard/scroll/touch — see `IDLE_LIMIT_MS` in `src/app/admin/page.tsx`),
+with a 1-minute countdown warning first so an in-progress, not-yet-saved
+edit isn't silently lost — any activity, including the warning's own "Palikt
+pieteiktam" button, resets the clock. This only affects the *unsaved* case;
+anything already saved via a tab's own "Saglabāt" button was written to the
+database immediately and is completely unaffected by signing out.
 
 ## Environment variables
 

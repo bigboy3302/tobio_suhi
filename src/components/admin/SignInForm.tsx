@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { NhostClient } from "@nhost/nhost-js";
 import type { Session } from "@nhost/nhost-js/auth";
-import { Lock } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 export default function SignInForm({
   nhost,
@@ -14,6 +14,7 @@ export default function SignInForm({
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -64,13 +65,23 @@ export default function SignInForm({
 
         <label className="mb-4 block text-sm">
           <span className="mb-1 block font-medium text-ink">Parole</span>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-ink/15 bg-cream px-3 py-2.5 text-sm outline-none focus:border-coral"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-ink/15 bg-cream px-3 py-2.5 pr-10 text-sm outline-none focus:border-coral"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Slēpt paroli" : "Rādīt paroli"}
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-ink-soft hover:text-ink"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </label>
 
         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
