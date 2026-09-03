@@ -58,7 +58,6 @@ export default async function Home() {
           options={rollOptions}
           basePrice={settings?.roll_builder_base_price ?? 4.9}
           locations={locations}
-          settings={settings}
         />
         <MenuPreview items={previewItems} />
         <WoltCTA settings={settings} />

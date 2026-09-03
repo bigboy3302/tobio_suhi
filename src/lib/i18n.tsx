@@ -82,7 +82,10 @@ const STRINGS: Record<string, Record<Lang, string>> = {
   },
   "builder.orderThis": { lv: "Pasūtīt šo roll'u", en: "Order this roll" },
   "builder.call": { lv: "Zvanīt", en: "Call" },
-  "builder.orderWolt": { lv: "Pasūtīt Wolt", en: "Order on Wolt" },
+  "builder.waMessage": {
+    lv: "Roll pasūtījums no mājaslapas: {items} — €{total}",
+    en: "Roll order from the website: {items} — €{total}",
+  },
   "builder.included": { lv: "iekļauts", en: "included" },
 
   "menu.eyebrow": { lv: "Ēdienkarte", en: "Menu" },

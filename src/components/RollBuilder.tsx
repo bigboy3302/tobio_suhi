@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Phone, Send, ShoppingBag } from "lucide-react";
-import type { Location, RollBuilderOption, SiteSettings } from "@/lib/types";
+import { Check, MessageCircle, Phone, ShoppingBag } from "lucide-react";
+import type { Location, RollBuilderOption } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
@@ -10,12 +10,10 @@ export default function RollBuilder({
   options,
   basePrice,
   locations,
-  settings,
 }: {
   options: RollBuilderOption[];
   basePrice: number;
   locations: Location[];
-  settings: SiteSettings | null;
 }) {
   const { t } = useLanguage();
   const reveal = useScrollReveal<HTMLElement>();
@@ -27,14 +25,23 @@ export default function RollBuilder({
   const [proteinId, setProteinId] = useState(protein[0]?.id ?? "");
   const [extraIds, setExtraIds] = useState<string[]>([]);
 
+  const riceOpt = rice.find((o) => o.id === riceId);
+  const proteinOpt = protein.find((o) => o.id === proteinId);
+  const selectedExtras = extra.filter((o) => extraIds.includes(o.id));
+
   const total = useMemo(() => {
-    const riceOpt = rice.find((o) => o.id === riceId);
-    const proteinOpt = protein.find((o) => o.id === proteinId);
-    const extrasSum = extra
-      .filter((o) => extraIds.includes(o.id))
-      .reduce((sum, o) => sum + o.price, 0);
+    const extrasSum = selectedExtras.reduce((sum, o) => sum + o.price, 0);
     return basePrice + (riceOpt?.price ?? 0) + (proteinOpt?.price ?? 0) + extrasSum;
-  }, [rice, protein, extra, riceId, proteinId, extraIds, basePrice]);
+  }, [riceOpt, proteinOpt, selectedExtras, basePrice]);
+
+  // Same text sent to either location — the customer still has to hit
+  // send themselves in WhatsApp, nothing is dispatched from here.
+  const orderMessage = useMemo(() => {
+    const items = [riceOpt?.name, proteinOpt?.name, ...selectedExtras.map((o) => `+${o.name}`)]
+      .filter(Boolean)
+      .join(", ");
+    return t("builder.waMessage", { items, total: total.toFixed(2) });
+  }, [riceOpt, proteinOpt, selectedExtras, total, t]);
 
   function toggleExtra(id: string) {
     setExtraIds((prev) => (prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]));
@@ -42,10 +49,10 @@ export default function RollBuilder({
 
   if (rice.length === 0 && protein.length === 0) return null;
 
-  const woltUrlByCity: Record<string, string | undefined> = {
-    Sigulda: settings?.wolt_url_sigulda,
-    Cēsis: settings?.wolt_url_cesis,
-  };
+  function waLink(loc: Location): string {
+    const digits = loc.phone.replace(/\D/g, "");
+    return `https://wa.me/${digits}?text=${encodeURIComponent(orderMessage)}`;
+  }
 
   return (
     <section
@@ -71,6 +78,7 @@ export default function RollBuilder({
             options={rice}
             selected={[riceId]}
             onSelect={(id) => setRiceId(id)}
+            twoUp={rice.length === 2}
           />
           <OptionGroup
             title={t("builder.step2")}
@@ -119,17 +127,15 @@ export default function RollBuilder({
                       <Phone className="h-3.5 w-3.5" />
                       {t("builder.call")}
                     </a>
-                    {woltUrlByCity[loc.city] && (
-                      <a
-                        href={woltUrlByCity[loc.city]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-matcha px-3 py-2.5 text-xs font-semibold text-ink transition-transform hover:-translate-y-0.5"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        {t("builder.orderWolt")}
-                      </a>
-                    )}
+                    <a
+                      href={waLink(loc)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-matcha px-3 py-2.5 text-xs font-semibold text-ink transition-transform hover:-translate-y-0.5"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      WhatsApp
+                    </a>
                   </div>
                 </div>
               ))}
@@ -147,19 +153,24 @@ function OptionGroup({
   selected,
   onSelect,
   multi,
+  twoUp,
 }: {
   title: string;
   options: RollBuilderOption[];
   selected: string[];
   onSelect: (id: string) => void;
   multi?: boolean;
+  /** Lays options out 2-per-row instead of stacked — for a short list (e.g.
+   *  2 rice options) that would otherwise read as an unfinished single
+   *  column next to taller sibling columns. */
+  twoUp?: boolean;
 }) {
   const { t } = useLanguage();
   if (options.length === 0) return null;
   return (
     <div>
       <h3 className="mb-3 text-sm font-semibold text-cream/85">{title}</h3>
-      <div className="flex flex-col gap-2">
+      <div className={twoUp ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
         {options.map((opt) => {
           const isSelected = selected.includes(opt.id);
           return (
@@ -168,7 +179,9 @@ function OptionGroup({
               type="button"
               onClick={() => onSelect(opt.id)}
               aria-pressed={isSelected}
-              className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+              className={`flex gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+                twoUp ? "flex-col items-start gap-1.5" : "items-center justify-between"
+              } ${
                 isSelected
                   ? "border-coral bg-coral/15 text-cream"
                   : "border-cream/15 text-cream/75 hover:border-cream/40"

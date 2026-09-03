@@ -91,10 +91,24 @@ have that column); `user` role (the one signed-in admin) = full CRUD.
 - `roll_builder_options` — rice/protein/extra options for the "Uztaisi savu
   roll'u" builder, using only ingredient names that actually appear on the
   real menu (pricing for this feature is illustrative — Tobio doesn't
-  actually sell build-your-own à la carte, see conversation). Its call/Wolt
-  buttons are per-location (same `tel:`/Wolt URLs as the Locations section
-  below), not one generic button — someone who just built a roll can order
-  it for whichever location is convenient without scrolling away.
+  actually sell build-your-own à la carte, see conversation). Its order
+  buttons are per-location call + WhatsApp — **not Wolt**, deliberately:
+  Wolt only supports ordering fixed menu items, so it can't carry a
+  freeform roll spec. The WhatsApp button (`wa.me/<number>?text=...`, see
+  `waLink` in `src/components/RollBuilder.tsx`) pre-fills a click-to-chat
+  message with the exact selections and live total (e.g. "Roll pasūtījums
+  no mājaslapas: Brūnie rīsi, Lasis, +Avokado — €7.90") in whichever
+  language the site is set to — the customer still has to hit send
+  themselves, and staff just reply in that WhatsApp thread to confirm, same
+  as a phone call today but with the order in writing. No backend, no
+  WhatsApp Business API, nothing stored. **Unconfirmed:** this assumes
+  Tobio's existing two phone numbers have WhatsApp on them — if not, or a
+  different number should be used for this, swap it in `waLink` (currently
+  reuses each location's stored `phone` field).
+  The rice column intentionally lays its 2 options side-by-side (`twoUp`
+  prop on `OptionGroup`) rather than stacked, since a lone 2-item single
+  column read as unfinished next to Protein/Extras' longer lists — pure
+  layout, not a 3rd rice option (there isn't one).
 - `site_settings` — single row: roll-builder base price, both Wolt ordering
   links, an optional hero background photo, and an
   optional manual override for the daily pick (`daily_special_manual_id`, FK
