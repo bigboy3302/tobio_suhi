@@ -4,13 +4,19 @@ import { Star } from "lucide-react";
 import type { Location } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 
-export default function GoogleReviewsCTA({
-  locations,
-  reviewsUrl,
-}: {
-  locations: Location[];
-  reviewsUrl: string;
-}) {
+// Google's own universal "write a review" deep link — takes the visitor
+// straight into the review composer for that exact place, built from the
+// place_id we already store per location (no admin field or extra API
+// call needed). Falls back to the location's Maps link (still
+// location-correct) only if a place_id isn't set yet.
+function reviewLink(loc: Location): string | null {
+  if (loc.google_place_id) {
+    return `https://search.google.com/local/writereview?placeid=${loc.google_place_id}`;
+  }
+  return loc.google_maps_url || null;
+}
+
+export default function GoogleReviewsCTA({ locations }: { locations: Location[] }) {
   const { t } = useLanguage();
   const totalReviews = locations.reduce((sum, l) => sum + (l.reviews_count || 0), 0);
   const avgRating =
@@ -31,14 +37,23 @@ export default function GoogleReviewsCTA({
           {t("googleReviews.count", { n: totalReviews })}
         </p>
         <p className="max-w-md text-sm text-cream/70">{t("googleReviews.body")}</p>
-        <a
-          href={reviewsUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1 inline-flex items-center gap-2 rounded-full bg-coral px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
-        >
-          {t("googleReviews.cta")}
-        </a>
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+          {locations.map((loc) => {
+            const href = reviewLink(loc);
+            if (!href) return null;
+            return (
+              <a
+                key={loc.id}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-coral px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
+              >
+                {t("googleReviews.ctaCity", { city: loc.city })}
+              </a>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

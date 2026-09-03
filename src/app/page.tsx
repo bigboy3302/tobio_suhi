@@ -58,12 +58,13 @@ export default async function Home() {
           options={rollOptions}
           basePrice={settings?.roll_builder_base_price ?? 4.9}
           locations={locations}
+          settings={settings}
         />
         <MenuPreview items={previewItems} />
         <WoltCTA settings={settings} />
         <Locations locations={locations} settings={settings} openNowByCity={openNowByCity} />
         <GoogleReviews placeData={placeData} />
-        <GoogleReviewsCTA locations={locations} reviewsUrl={settings?.google_reviews_url ?? ""} />
+        <GoogleReviewsCTA locations={locations} />
       </main>
       <Footer locations={locations} year={new Date().getFullYear()} />
       <MobileOrderBar locations={locations} />

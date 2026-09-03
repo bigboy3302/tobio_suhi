@@ -60,7 +60,7 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
     query {
       site_settings(limit: 1) {
         id daily_special_manual_id roll_builder_base_price
-        google_reviews_url wolt_url_sigulda wolt_url_cesis
+        wolt_url_sigulda wolt_url_cesis
         hero_image_id hero_image_alt
         daily_special_manual {
           ${MENU_ITEM_FIELDS}

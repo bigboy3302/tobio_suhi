@@ -91,9 +91,12 @@ have that column); `user` role (the one signed-in admin) = full CRUD.
 - `roll_builder_options` — rice/protein/extra options for the "Uztaisi savu
   roll'u" builder, using only ingredient names that actually appear on the
   real menu (pricing for this feature is illustrative — Tobio doesn't
-  actually sell build-your-own à la carte, see conversation)
-- `site_settings` — single row: roll-builder base price, Google reviews link,
-  both Wolt ordering links, an optional hero background photo, and an
+  actually sell build-your-own à la carte, see conversation). Its call/Wolt
+  buttons are per-location (same `tel:`/Wolt URLs as the Locations section
+  below), not one generic button — someone who just built a roll can order
+  it for whichever location is convenient without scrolling away.
+- `site_settings` — single row: roll-builder base price, both Wolt ordering
+  links, an optional hero background photo, and an
   optional manual override for the daily pick (`daily_special_manual_id`, FK
   to `menu_items`) — if unset, the site falls back to a day-of-week rotation
   through the menu (`src/lib/data.ts` → `resolveDailySpecial`)
@@ -145,9 +148,16 @@ Cēsis) rather than mixed together.
 Until then, the Reviews section simply doesn't render (see
 `src/lib/googleReviews.ts` — any missing config or failed request returns an
 empty list, on purpose, rather than ever showing placeholder text). The
-aggregate "X out of 5 — N+ Google reviews" banner lower on the page is
-unaffected either way — it's driven by the rating/count already stored on
-each location, not by this API call.
+aggregate "X out of 5 — N+ Google reviews" banner lower on the page still
+renders either way — its rating/count prefer the same live API response
+(`rating`/`user_ratings_total` fields) when available, falling back to the
+rating/count stored on each location otherwise. That banner's two buttons
+("Leave a review — Sigulda"/"— Cēsis") are per-location, built from each
+location's `google_place_id` via Google's universal write-review link
+(`search.google.com/local/writereview?placeid=...`) — no admin field
+needed, so they can't point at the wrong place. (The old single
+site-wide "Google reviews link" field in Settings was removed since nothing
+reads it anymore.)
 
 The same request also pulls each location's live `open_now` status from
 Google (`opening_hours` field, same API call as the reviews — no extra

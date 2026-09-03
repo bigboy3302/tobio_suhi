@@ -76,7 +76,6 @@ export interface SiteSettings {
   daily_special_manual_id: string | null;
   daily_special_manual: MenuItem | null;
   roll_builder_base_price: number;
-  google_reviews_url: string;
   wolt_url_sigulda: string;
   wolt_url_cesis: string;
   hero_image_id: string | null;

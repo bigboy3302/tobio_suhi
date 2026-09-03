@@ -8,7 +8,7 @@ import ImageUploadField from "./ImageUploadField";
 
 const SETTINGS_FIELDS = `
   id daily_special_manual_id roll_builder_base_price
-  google_reviews_url wolt_url_sigulda wolt_url_cesis
+  wolt_url_sigulda wolt_url_cesis
   hero_image_id hero_image_alt
 `;
 
@@ -62,7 +62,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
           input: {
             daily_special_manual_id: settings.daily_special_manual_id || null,
             roll_builder_base_price: Number(settings.roll_builder_base_price),
-            google_reviews_url: settings.google_reviews_url,
             wolt_url_sigulda: settings.wolt_url_sigulda,
             wolt_url_cesis: settings.wolt_url_cesis,
             hero_image_id: settings.hero_image_id,
@@ -135,14 +134,6 @@ export default function SiteSettingsAdmin({ nhost }: { nhost: NhostClient }) {
             onChange={(e) =>
               setSettings({ ...settings, roll_builder_base_price: Number(e.target.value) })
             }
-            className="admin-input"
-          />
-        </Field>
-
-        <Field label="Google atsauksmju saite">
-          <input
-            value={settings.google_reviews_url}
-            onChange={(e) => setSettings({ ...settings, google_reviews_url: e.target.value })}
             className="admin-input"
           />
         </Field>

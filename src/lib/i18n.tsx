@@ -80,9 +80,9 @@ const STRINGS: Record<string, Record<Lang, string>> = {
     lv: "Bāzes cena €{base} + izvēlētās sastāvdaļas",
     en: "Base price €{base} + your chosen ingredients",
   },
-  "builder.callToOrder": { lv: "Piezvanīt un pasūtīt", en: "Call to order" },
   "builder.orderThis": { lv: "Pasūtīt šo roll'u", en: "Order this roll" },
-  "builder.orWolt": { lv: "vai pasūti Wolt lietotnē", en: "or order via the Wolt app" },
+  "builder.call": { lv: "Zvanīt", en: "Call" },
+  "builder.orderWolt": { lv: "Pasūtīt Wolt", en: "Order on Wolt" },
   "builder.included": { lv: "iekļauts", en: "included" },
 
   "menu.eyebrow": { lv: "Ēdienkarte", en: "Menu" },
@@ -123,6 +123,7 @@ const STRINGS: Record<string, Record<Lang, string>> = {
   "googleReviews.outOf5": { lv: "no 5", en: "out of 5" },
   "googleReviews.count": { lv: "{n}+ Google atsauksmes", en: "{n}+ Google reviews" },
   "googleReviews.cta": { lv: "Skatīt Google atsauksmes", en: "See Google reviews" },
+  "googleReviews.ctaCity": { lv: "Atstāt atsauksmi — {city}", en: "Leave a review — {city}" },
 
   "footer.tagline": {
     lv: "Svaigs suši, gatavots ar sirdi — Siguldā un Cēsīs.",

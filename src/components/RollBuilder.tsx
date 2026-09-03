@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Phone, ShoppingBag } from "lucide-react";
-import type { Location, RollBuilderOption } from "@/lib/types";
+import { Check, Phone, Send, ShoppingBag } from "lucide-react";
+import type { Location, RollBuilderOption, SiteSettings } from "@/lib/types";
 import { useLanguage } from "@/lib/i18n";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 
@@ -10,10 +10,12 @@ export default function RollBuilder({
   options,
   basePrice,
   locations,
+  settings,
 }: {
   options: RollBuilderOption[];
   basePrice: number;
   locations: Location[];
+  settings: SiteSettings | null;
 }) {
   const { t } = useLanguage();
   const reveal = useScrollReveal<HTMLElement>();
@@ -40,7 +42,10 @@ export default function RollBuilder({
 
   if (rice.length === 0 && protein.length === 0) return null;
 
-  const primaryLocation = locations[0];
+  const woltUrlByCity: Record<string, string | undefined> = {
+    Sigulda: settings?.wolt_url_sigulda,
+    Cēsis: settings?.wolt_url_cesis,
+  };
 
   return (
     <section
@@ -92,15 +97,7 @@ export default function RollBuilder({
             <p className="mt-1 text-xs text-ink-soft">
               {t("builder.basePrice", { base: basePrice.toFixed(2) })}
             </p>
-            {primaryLocation ? (
-              <a
-                href={`tel:${primaryLocation.phone.replace(/\s+/g, "")}`}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
-              >
-                <Phone className="h-4 w-4" />
-                {t("builder.callToOrder")}
-              </a>
-            ) : (
+            {locations.length === 0 && (
               <a
                 href="#atrasanas-vietas"
                 className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-5 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
@@ -108,12 +105,35 @@ export default function RollBuilder({
                 {t("builder.orderThis")}
               </a>
             )}
-            <a
-              href="#pasutit"
-              className="mt-2 block text-center text-xs font-medium text-ink-soft underline-offset-4 hover:underline"
-            >
-              {t("builder.orWolt")}
-            </a>
+            <div className="mt-5 flex flex-col gap-3">
+              {locations.map((loc) => (
+                <div key={loc.id}>
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-soft">
+                    {loc.city}
+                  </p>
+                  <div className="flex gap-2">
+                    <a
+                      href={`tel:${loc.phone.replace(/\s+/g, "")}`}
+                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-ink px-3 py-2.5 text-xs font-semibold text-cream transition-transform hover:-translate-y-0.5"
+                    >
+                      <Phone className="h-3.5 w-3.5" />
+                      {t("builder.call")}
+                    </a>
+                    {woltUrlByCity[loc.city] && (
+                      <a
+                        href={woltUrlByCity[loc.city]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-matcha px-3 py-2.5 text-xs font-semibold text-ink transition-transform hover:-translate-y-0.5"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        {t("builder.orderWolt")}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
